@@ -17,26 +17,26 @@ namespace GGTalk.Server
     /// 自定义信息处理器。
     /// （1）当用户上线时，在其LocalTag挂接资料信息。
     /// </summary>
-    internal class CustomizeHandler : IIntegratedCustomizeHandler 
+    internal class CustomizeHandler : IIntegratedCustomizeHandler
     {
         private GlobalCache globalCache;
         private IRapidServerEngine rapidServerEngine;
-        private OfflineFileController offlineFileController;      
+        private OfflineFileController offlineFileController;
         public void Initialize(GlobalCache db, IRapidServerEngine engine, OfflineFileController fileCtr)
         {
             this.globalCache = db;
-            this.rapidServerEngine = engine;           
+            this.rapidServerEngine = engine;
             this.offlineFileController = fileCtr;
 
             this.rapidServerEngine.UserManager.SomeOneDisconnected += new ESBasic.CbGeneric<UserData, ESFramework.Server.DisconnectedType>(UserManager_SomeOneDisconnected);
-            this.rapidServerEngine.ContactsController.BroadcastReceived += new ESBasic.CbGeneric<string, string, int, byte[] ,string>(ContactsController_BroadcastReceived);
+            this.rapidServerEngine.ContactsController.BroadcastReceived += new ESBasic.CbGeneric<string, string, int, byte[], string>(ContactsController_BroadcastReceived);
             this.rapidServerEngine.MessageReceived += new ESBasic.CbGeneric<string, int, byte[], string>(rapidServerEngine_MessageReceived);
         }
 
         void rapidServerEngine_MessageReceived(string sourceUserID, int informationType, byte[] info, string tag)
         {
             if (informationType == InformationTypes.Chat)
-            {             
+            {
                 string destID = tag;
                 if (this.rapidServerEngine.UserManager.IsUserOnLine(destID))
                 {
@@ -54,7 +54,7 @@ namespace GGTalk.Server
             if (informationType == InformationTypes.UpdateUserInfo)
             {
                 GGUser user = ESPlus.Serialization.CompactPropertySerializer.Default.Deserialize<GGUser>(info, 0);
-                GGUser old = this.globalCache.GetUser(user.UserID);               
+                GGUser old = this.globalCache.GetUser(user.UserID);
                 this.globalCache.UpdateUser(user);
                 List<string> friendIDs = this.globalCache.GetFriends(sourceUserID);
                 byte[] subData = ESPlus.Serialization.CompactPropertySerializer.Default.Serialize<GGUser>(user.PartialCopy); //0922   
@@ -70,7 +70,7 @@ namespace GGTalk.Server
             }
         }
 
-        void ContactsController_BroadcastReceived(string broadcasterID, string groupID, int broadcastType, byte[] broadcastContent ,string tag)
+        void ContactsController_BroadcastReceived(string broadcasterID, string groupID, int broadcastType, byte[] broadcastContent, string tag)
         {
             if (broadcastType == BroadcastTypes.BroadcastChat)
             {
@@ -108,7 +108,7 @@ namespace GGTalk.Server
         {
             if (informationType == InformationTypes.AddFriendCatalog)
             {
-                string catalogName = System.Text.Encoding.UTF8.GetString(info) ;
+                string catalogName = System.Text.Encoding.UTF8.GetString(info);
                 this.globalCache.AddFriendCatalog(sourceUserID, catalogName);
                 return;
             }
@@ -130,7 +130,7 @@ namespace GGTalk.Server
             if (informationType == InformationTypes.MoveFriendToOtherCatalog)
             {
                 MoveFriendToOtherCatalogContract contract = CompactPropertySerializer.Default.Deserialize<MoveFriendToOtherCatalogContract>(info, 0);
-                this.globalCache.MoveFriend(sourceUserID,contract.FriendID, contract.OldCatalog, contract.NewCatalog);
+                this.globalCache.MoveFriend(sourceUserID, contract.FriendID, contract.OldCatalog, contract.NewCatalog);
                 return;
             }
 
@@ -148,19 +148,118 @@ namespace GGTalk.Server
 
             if (informationType == InformationTypes.QuitGroup)
             {
-                string groupID = System.Text.Encoding.UTF8.GetString(info) ;
+                string groupID = System.Text.Encoding.UTF8.GetString(info);
                 this.globalCache.QuitGroup(sourceUserID, groupID);
                 //通知其它组成员
-                this.rapidServerEngine.ContactsController.Broadcast(groupID, BroadcastTypes.SomeoneQuitGroup, System.Text.Encoding.UTF8.GetBytes(sourceUserID),null, ESFramework.ActionTypeOnChannelIsBusy.Continue);
-              
+                this.rapidServerEngine.ContactsController.Broadcast(groupID, BroadcastTypes.SomeoneQuitGroup, System.Text.Encoding.UTF8.GetBytes(sourceUserID), null, ESFramework.ActionTypeOnChannelIsBusy.Continue);
+
+                return;
+            }
+            //禁止发言
+            if (informationType == InformationTypes.SetNoSpeak)
+            {
+                string groupID = System.Text.Encoding.UTF8.GetString(info).Split('|')[0];
+                string UserID = System.Text.Encoding.UTF8.GetString(info).Split('|')[1];
+
+                this.globalCache.SetNoSpeakGroup(UserID, groupID);
+                //通知其它组成员
+                this.rapidServerEngine.ContactsController.Broadcast(groupID, BroadcastTypes.SomeoneNoSpeakGroup, System.Text.Encoding.UTF8.GetBytes(UserID), null, ESFramework.ActionTypeOnChannelIsBusy.Continue);
+
                 return;
             }
 
+            //解除禁止发言
+            if (informationType == InformationTypes.SetAllowSpeak)
+            {
+                string groupID = System.Text.Encoding.UTF8.GetString(info).Split('|')[0];
+                string UserID = System.Text.Encoding.UTF8.GetString(info).Split('|')[1];
+                this.globalCache.SetAllowSpeakGroup(UserID, groupID);
+                //通知其它组成员
+                this.rapidServerEngine.ContactsController.Broadcast(groupID, BroadcastTypes.SomeoneAllowSpeakGroup, System.Text.Encoding.UTF8.GetBytes(UserID), null, ESFramework.ActionTypeOnChannelIsBusy.Continue);
+
+                return;
+            }
+
+
+            //踢人
+            if (informationType == InformationTypes.RemoveMember)
+            {
+                string groupID = System.Text.Encoding.UTF8.GetString(info).Split('|')[0];
+                string UserID = System.Text.Encoding.UTF8.GetString(info).Split('|')[1];
+
+                this.globalCache.RemoveMemberGroup(UserID, groupID);
+                //通知其它组成员
+                this.rapidServerEngine.ContactsController.Broadcast(groupID, BroadcastTypes.SomeoneRemoveGroup, System.Text.Encoding.UTF8.GetBytes(UserID), null, ESFramework.ActionTypeOnChannelIsBusy.Continue);
+
+                //通知对方
+                this.rapidServerEngine.CustomizeController.Send(UserID, InformationTypes.RemoveMember, info, true, ESFramework.ActionTypeOnChannelIsBusy.Continue);
+                return;
+            }
+
+
+            if (informationType == InformationTypes.AddMember)
+            {
+                string groupID = System.Text.Encoding.UTF8.GetString(info).Split('|')[0];
+                string UserID = System.Text.Encoding.UTF8.GetString(info).Split('|')[1];
+                JoinGroupResult res = this.globalCache.JoinGroup(UserID, groupID);
+                if (res == JoinGroupResult.Succeed)
+                {
+                    //通知其它组成员
+                    this.rapidServerEngine.ContactsController.Broadcast(groupID, BroadcastTypes.SomeoneJoinGroup, System.Text.Encoding.UTF8.GetBytes(sourceUserID), null, ESFramework.ActionTypeOnChannelIsBusy.Continue);
+
+
+
+                    //通知对方
+                    this.rapidServerEngine.CustomizeController.Send(UserID, InformationTypes.AddMember, info, true, ESFramework.ActionTypeOnChannelIsBusy.Continue);
+                }
+                return;
+            }
+
+
+
+
+            //解除管理员
+            if (informationType == InformationTypes.RemoveManager)
+            {
+                string groupID = System.Text.Encoding.UTF8.GetString(info).Split('|')[0];
+                string UserID = System.Text.Encoding.UTF8.GetString(info).Split('|')[1];
+
+                this.globalCache.RemoveManagerGroup(UserID, groupID);
+                //通知其它组成员
+                this.rapidServerEngine.ContactsController.Broadcast(groupID, BroadcastTypes.SomeoneRemoveManagerGroup, System.Text.Encoding.UTF8.GetBytes(UserID), null, ESFramework.ActionTypeOnChannelIsBusy.Continue);
+
+
+
+                ////通知对方
+                //this.rapidServerEngine.CustomizeController.Send(UserID, InformationTypes.RemoveManager, info, true, ESFramework.ActionTypeOnChannelIsBusy.Continue);
+                return;
+            }
+
+
+            if (informationType == InformationTypes.AddManager)
+            {
+                string groupID = System.Text.Encoding.UTF8.GetString(info).Split('|')[0];
+                string UserID = System.Text.Encoding.UTF8.GetString(info).Split('|')[1];
+                this.globalCache.AddManagerGroup(UserID, groupID);
+                this.rapidServerEngine.ContactsController.Broadcast(groupID, BroadcastTypes.SomeoneAddManagerGroup, System.Text.Encoding.UTF8.GetBytes(UserID), null, ESFramework.ActionTypeOnChannelIsBusy.Continue);
+
+                //通知对方
+                // this.rapidServerEngine.CustomizeController.Send(UserID, InformationTypes.AddManager, info, true, ESFramework.ActionTypeOnChannelIsBusy.Continue);
+
+                return;
+            }
+
+
+
+
+
+
+
             if (informationType == InformationTypes.DeleteGroup)
             {
-                string groupID = System.Text.Encoding.UTF8.GetString(info);               
+                string groupID = System.Text.Encoding.UTF8.GetString(info);
                 //通知其它组成员
-                this.rapidServerEngine.ContactsController.Broadcast(groupID, BroadcastTypes.GroupDeleted, System.Text.Encoding.UTF8.GetBytes(sourceUserID),null, ESFramework.ActionTypeOnChannelIsBusy.Continue);
+                this.rapidServerEngine.ContactsController.Broadcast(groupID, BroadcastTypes.GroupDeleted, System.Text.Encoding.UTF8.GetBytes(sourceUserID), null, ESFramework.ActionTypeOnChannelIsBusy.Continue);
                 this.globalCache.DeleteGroup(groupID);
                 return;
             }
@@ -172,25 +271,25 @@ namespace GGTalk.Server
                 //通知好友
                 this.rapidServerEngine.CustomizeController.Send(friendID, InformationTypes.FriendRemovedNotify, System.Text.Encoding.UTF8.GetBytes(sourceUserID));
                 return;
-            }        
+            }
 
             if (informationType == InformationTypes.ChangeStatus)
             {
                 GGUser user = this.globalCache.GetUser(sourceUserID);
                 int newStatus = BitConverter.ToInt32(info, 0);
                 user.UserStatus = (UserStatus)newStatus;
-                List<string> contacts = this.globalCache.GetAllContacts(sourceUserID);                          
+                List<string> contacts = this.globalCache.GetAllContacts(sourceUserID);
                 UserStatusChangedContract contract = new UserStatusChangedContract(sourceUserID, newStatus);
                 byte[] msg = ESPlus.Serialization.CompactPropertySerializer.Default.Serialize(contract);
                 foreach (string friendID in contacts)
                 {
                     this.rapidServerEngine.CustomizeController.Send(friendID, InformationTypes.UserStatusChanged, msg);
-                }                
+                }
                 return;
             }
 
             if (informationType == InformationTypes.SystemNotify4AllOnline)
-            {                
+            {
                 foreach (string userID in this.rapidServerEngine.UserManager.GetOnlineUserList())
                 {
                     this.rapidServerEngine.CustomizeController.Send(userID, InformationTypes.SystemNotify4AllOnline, info);
@@ -226,13 +325,13 @@ namespace GGTalk.Server
 
             if (informationType == InformationTypes.AddFriend)
             {
-                AddFriendContract contract = CompactPropertySerializer.Default.Deserialize<AddFriendContract>(info ,0);
+                AddFriendContract contract = CompactPropertySerializer.Default.Deserialize<AddFriendContract>(info, 0);
                 bool isExist = this.globalCache.IsUserExist(contract.FriendID);
                 if (!isExist)
                 {
                     return BitConverter.GetBytes((int)AddFriendResult.FriendNotExist);
                 }
-                this.globalCache.AddFriend(sourceUserID, contract.FriendID ,contract.CatalogName);
+                this.globalCache.AddFriend(sourceUserID, contract.FriendID, contract.CatalogName);
 
                 //0922
                 GGUser owner = this.globalCache.GetUser(sourceUserID);
@@ -280,7 +379,7 @@ namespace GGTalk.Server
 
             if (informationType == InformationTypes.GetContactsRTData)
             {
-                List<string> contacts = this.globalCache.GetAllContacts(sourceUserID);               
+                List<string> contacts = this.globalCache.GetAllContacts(sourceUserID);
                 Dictionary<string, UserRTData> dic = new Dictionary<string, UserRTData>();
                 foreach (string friendID in contacts)
                 {
@@ -289,11 +388,11 @@ namespace GGTalk.Server
                         GGUser data = this.globalCache.GetUser(friendID);
                         if (data != null)
                         {
-                            UserRTData rtData = new UserRTData(data.UserStatus ,data.Version) ;
+                            UserRTData rtData = new UserRTData(data.UserStatus, data.Version);
                             dic.Add(friendID, rtData);
                         }
                     }
-                }     
+                }
                 Dictionary<string, int> groupVerDic = this.globalCache.GetMyGroupVersions(sourceUserID);
                 ContactsRTDataContract contract = new ContactsRTDataContract(dic, groupVerDic);
                 return CompactPropertySerializer.Default.Serialize(contract);
@@ -312,7 +411,7 @@ namespace GGTalk.Server
                     user = user.PartialCopy;
                 }
                 return CompactPropertySerializer.Default.Serialize<GGUser>(user);
-            }     
+            }
 
             if (informationType == InformationTypes.GetMyGroups)
             {
@@ -332,7 +431,7 @@ namespace GGTalk.Server
                         myGroups.Add(group);
                     }
                 }
-                
+
                 return CompactPropertySerializer.Default.Serialize(myGroups);
             }
 
@@ -343,15 +442,37 @@ namespace GGTalk.Server
                 if (res == JoinGroupResult.Succeed)
                 {
                     //通知其它组成员
-                    this.rapidServerEngine.ContactsController.Broadcast(groupID, BroadcastTypes.SomeoneJoinGroup, System.Text.Encoding.UTF8.GetBytes(sourceUserID),null, ESFramework.ActionTypeOnChannelIsBusy.Continue);
+                    this.rapidServerEngine.ContactsController.Broadcast(groupID, BroadcastTypes.SomeoneJoinGroup, System.Text.Encoding.UTF8.GetBytes(sourceUserID), null, ESFramework.ActionTypeOnChannelIsBusy.Continue);
                 }
                 return BitConverter.GetBytes((int)res);
             }
 
+
+            if (informationType == InformationTypes.AddMember)
+            {
+                string groupID = System.Text.Encoding.UTF8.GetString(info).Split('|')[0];
+                string UserID = System.Text.Encoding.UTF8.GetString(info).Split('|')[1];
+                AddMemberResult res = this.globalCache.AddMember(UserID, groupID);
+                if (res == AddMemberResult.Succeed)
+                {
+                    //通知其它组成员
+                    this.rapidServerEngine.ContactsController.Broadcast(groupID, BroadcastTypes.SomeoneAddGroup, System.Text.Encoding.UTF8.GetBytes(UserID), null, ESFramework.ActionTypeOnChannelIsBusy.Continue);
+                    //通知对方
+                    this.rapidServerEngine.CustomizeController.Send(UserID, InformationTypes.AddMember, info, true, ESFramework.ActionTypeOnChannelIsBusy.Continue);
+                }
+                return BitConverter.GetBytes((int)res);
+            }
+
+
+
+
+
+
+
             if (informationType == InformationTypes.CreateGroup)
             {
                 CreateGroupContract contract = CompactPropertySerializer.Default.Deserialize<CreateGroupContract>(info, 0);
-                CreateGroupResult res = this.globalCache.CreateGroup(sourceUserID, contract.ID, contract.Name, contract.Announce);               
+                CreateGroupResult res = this.globalCache.CreateGroup(sourceUserID, contract.ID, contract.Name, contract.Announce, sourceUserID, "");
                 return BitConverter.GetBytes((int)res);
             }
 

@@ -50,8 +50,15 @@ namespace JustLib
 
         List<string> MemberList { get; }
 
+        List<string> NoSpeakList { get; }
+        List<string> ManagerList { get; }
+
         void AddMember(string userID);
         void RemoveMember(string userID);
+        void AddNoSpeak(string userID);
+        void RemoveNoSpeak(string userID);
+
+        
 
     }
     #endregion
@@ -89,7 +96,14 @@ namespace JustLib
         GroupInfoChanged,
         SomeoneJoin,
         SomeoneQuit,
-        GroupDeleted
+        GroupDeleted,
+        SomeoneNoSpeak,
+        SomeoneAllowSpeak,
+        SomeoneRemove,
+        SomeoneAdd,
+        SomeoneAddManagers,
+        SomeoneRemoveManagers,
+
     }
 
     #region ContactRTDatas

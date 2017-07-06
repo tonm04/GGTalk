@@ -120,6 +120,8 @@ namespace GGTalk
                 }
                 this.globalUserCache.RemoveGroup(group.ID);
                 this.globalUserCache.CurrentUser.QuitGroup(group.ID);
+
+
                 MessageBoxEx.Show(string.Format("您已经退出群{0}({1})。", group.ID, group.Name));
             }
             catch (Exception ee)

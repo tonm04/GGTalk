@@ -16,6 +16,21 @@ namespace GGTalk
         GroupNotExist,   
     }
 
+    public enum  AddMemberResult
+    {
+        Succeed = 0,
+        MemberNotExist,
+    }
+
+
+
+    public enum AddManagerResult
+    {
+        Succeed = 0,
+        MemberNotExist,
+    }
+
+
     public enum CreateGroupResult
     {
         Succeed = 0,

@@ -40,6 +40,8 @@ CREATE TABLE `GGGroup` (
   `Name` varchar(20) NOT NULL,
   `CreatorID` varchar(20) NOT NULL,
   `Members` varchar(4000) NOT NULL,
+  `Managers` varchar(4000) NULL,
+  `NoSpeak` varchar(4000) NULL,
   `CreateTime` datetime NOT NULL,
   `Version` int(255) NOT NULL,
   `Announce` varchar(200) NOT NULL,

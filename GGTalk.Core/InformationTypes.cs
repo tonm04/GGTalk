@@ -124,7 +124,7 @@ namespace GGTalk
         /// <summary>
         /// 挂断语音对话 （C->C）
         /// </summary>
-        public const int HungupAudio = 22;       
+        public const int HungupAudio = 22;
         #endregion
 
         #region 个人资料、状态       
@@ -162,7 +162,7 @@ namespace GGTalk
         /// 修改密码（C->S）
         /// </summary>
         public const int ChangePassword = 38;
-        
+
         #endregion
 
         #region contacts
@@ -170,7 +170,7 @@ namespace GGTalk
         /// 获取我的所有联系人的在线状态、版本号，以及我的所有组的版本号（C->S）
         /// </summary>
         public const int GetContactsRTData = 40;
-        
+
         /// <summary>
         /// 获取我的所有好友ID（C->S）
         /// </summary>        
@@ -179,8 +179,8 @@ namespace GGTalk
         /// <summary>
         /// 获取我的所有联系人资料（C->S）
         /// </summary>
-        public const int GetAllContacts = 42;   
- 
+        public const int GetAllContacts = 42;
+
 
         /// <summary>
         /// 添加好友（C->S）
@@ -200,7 +200,7 @@ namespace GGTalk
         /// <summary>
         /// 通知客户端其被对方添加为好友（S->C）
         /// </summary>
-        public const int FriendAddedNotify = 46; 
+        public const int FriendAddedNotify = 46;
         #endregion
 
         #region Group
@@ -237,7 +237,7 @@ namespace GGTalk
         /// <summary>
         /// 解散组（C->S）
         /// </summary>
-        public const int DeleteGroup = 56; 
+        public const int DeleteGroup = 56;
         #endregion
 
         #region FriendCatalog
@@ -271,9 +271,51 @@ namespace GGTalk
         /// <summary>
         /// 发送给某个组的系统消息
         /// </summary>
-        public const int SystemNotify4Group = 81;        
+        public const int SystemNotify4Group = 81;
 
         #endregion
+
+
+
+
+        /// <summary>
+        /// 禁止发言（C->S）
+        /// </summary>
+        public const int SetNoSpeak = 90;
+
+
+        /// <summary>
+        /// 允许发言（C->S）
+        /// </summary>
+        public const int SetAllowSpeak = 91;
+
+
+        /// <summary>
+        /// 踢人（C->S）
+        /// </summary>
+        public const int RemoveMember = 92;
+
+        /// <summary>
+        /// 加人（C->S）
+        /// </summary>
+        public const int AddMember = 93;
+
+
+
+
+        /// <summary>
+        /// 设为管理员（C->S）
+        /// </summary>
+        public const int AddManager = 94;
+
+        /// <summary>
+        /// 解除管理员（C->S）
+        /// </summary>
+        public const int RemoveManager = 95;
+
+
+
+
 
         //取值0-100。
         public static bool ContainsInformationType(int infoType)
@@ -304,5 +346,39 @@ namespace GGTalk
         /// 组被解散
         /// </summary>
         public const int GroupDeleted = 3;
+
+        /// <summary>
+        /// 禁止某用户发言
+        /// </summary>
+        public const int SomeoneNoSpeakGroup = 5;
+
+        /// <summary>
+        /// 允许某用户发言
+        /// </summary>
+        public const int SomeoneAllowSpeakGroup = 6;
+
+        /// <summary>
+        /// 踢走某人
+        /// </summary>
+        public const int SomeoneRemoveGroup = 7;
+
+        /// <summary>
+        /// 加入某人
+        /// </summary>
+        public const int SomeoneAddGroup = 8;
+      
+
+        /// <summary>
+        /// 设为管理员
+        /// </summary>
+        public const int SomeoneAddManagerGroup = 9;
+        /// <summary>
+        /// 解除管理员
+        /// </summary>
+        public const int SomeoneRemoveManagerGroup = 10;
+
+
+
+
     }
 }

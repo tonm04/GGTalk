@@ -75,6 +75,7 @@ namespace GGTalk
             this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton4 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButton5 = new System.Windows.Forms.ToolStripButton();
             this.skinLabel_softName = new CCWin.SkinControl.SkinLabel();
             this.labelName = new CCWin.SkinControl.SkinLabel();
             this.pnlTx = new CCWin.SkinControl.SkinPanel();
@@ -83,7 +84,6 @@ namespace GGTalk
             this.groupListBox = new JustLib.UnitViews.GroupListBox();
             this.recentListBox1 = new JustLib.UnitViews.RecentListBox();
             this.autoDocker1 = new GGTalk.AutoDocker(this.components);
-            this.toolStripButton5 = new System.Windows.Forms.ToolStripButton();
             this.skinContextMenuStrip_State.SuspendLayout();
             this.skinContextMenuStrip_main.SuspendLayout();
             this.skinToolStrip3.SuspendLayout();
@@ -681,6 +681,15 @@ namespace GGTalk
             this.toolStripButton2.Text = "联系作者";
             this.toolStripButton2.Click += new System.EventHandler(this.toolStripButton2_Click);
             // 
+            // toolStripButton5
+            // 
+            this.toolStripButton5.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButton5.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton5.Image")));
+            this.toolStripButton5.Name = "toolStripButton5";
+            this.toolStripButton5.Size = new System.Drawing.Size(23, 21);
+            this.toolStripButton5.Text = "发送通知";
+            this.toolStripButton5.Click += new System.EventHandler(this.toolStripButton5_Click);
+            // 
             // skinLabel_softName
             // 
             this.skinLabel_softName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -776,15 +785,6 @@ namespace GGTalk
             this.recentListBox1.Size = new System.Drawing.Size(278, 593);
             this.recentListBox1.TabIndex = 135;
             this.recentListBox1.Visible = false;
-            // 
-            // toolStripButton5
-            // 
-            this.toolStripButton5.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton5.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton5.Image")));
-            this.toolStripButton5.Name = "toolStripButton5";
-            this.toolStripButton5.Size = new System.Drawing.Size(23, 21);
-            this.toolStripButton5.Text = "发送通知";
-            this.toolStripButton5.Click += new System.EventHandler(this.toolStripButton5_Click);
             // 
             // MainForm
             // 

@@ -45,13 +45,13 @@ namespace GGTalk
         public string FormID
         {
             get { return this.currentGroup.GroupID; }
-        } 
+        }
         #endregion
 
         #region Ctor
-        public GroupChatForm(IRapidPassiveEngine engine,string groupID, GlobalUserCache cache ,IChatSupporter supporter)
+        public GroupChatForm(IRapidPassiveEngine engine, string groupID, GlobalUserCache cache, IChatSupporter supporter)
         {
-            this.rapidPassiveEngine = engine;            
+            this.rapidPassiveEngine = engine;
             this.globalUserCache = cache;
             this.mine = this.globalUserCache.GetUser(this.rapidPassiveEngine.CurrentUserID);
             this.ggSupporter = supporter;
@@ -67,22 +67,22 @@ namespace GGTalk
             this.linkLabel_softName.Text = GlobalResourceManager.SoftwareName;
 
             this.toolShow.SetToolTip(this.panelFriendHeadImage, this.currentGroup.GroupID);
-            this.Text = string.Format("{0}({1})",this.currentGroup.Name ,this.currentGroup.GroupID);
+            this.Text = string.Format("{0}({1})", this.currentGroup.Name, this.currentGroup.GroupID);
             this.labelGroupName.Text = this.currentGroup.Name;
             this.label_announce.Text = this.currentGroup.Announce;
-            this.chatBoxSend.Focus();            
+            this.chatBoxSend.Focus();
 
             this.emotionForm = new EmotionForm();
             this.emotionForm.Load += new EventHandler(emotionForm_Load);
             this.emotionForm.Initialize(GlobalResourceManager.EmotionList);
-            this.emotionForm.EmotionClicked += new CbGeneric<int,Image>(emotionForm_Clicked);
+            this.emotionForm.EmotionClicked += new CbGeneric<int, Image>(emotionForm_Clicked);
             this.emotionForm.Visible = false;
             this.emotionForm.LostFocus += new EventHandler(emotionForm_LostFocus);
 
             foreach (string memberID in this.currentGroup.MemberList)
             {
                 GGUser friend = this.globalUserCache.GetUser(memberID);
-                this.AddUserItem(friend);              
+                this.AddUserItem(friend);
             }
 
             if (SystemSettings.Singleton.LoadLastWordsWhenChatFormOpened)
@@ -104,21 +104,21 @@ namespace GGTalk
         private void AddUserItem(GGUser friend)
         {
             ChatListSubItem subItem = new ChatListSubItem(friend.UserID, friend.UserID, friend.Name, friend.Signature, GlobalResourceManager.ConvertUserStatus(friend.UserStatus), GlobalResourceManager.GetHeadImage(friend));
-            subItem.Tag = friend;           
+            subItem.Tag = friend;
             this.chatListBox1.Items[0].SubItems.AddAccordingToStatus(subItem);
         }
 
         void emotionForm_Load(object sender, EventArgs e)
         {
-            this.emotionForm.Location = new Point((this.Left + 30) - (this.emotionForm.Width / 2), this.Top +  skToolMenu.Top - this.emotionForm.Height);
+            this.emotionForm.Location = new Point((this.Left + 30) - (this.emotionForm.Width / 2), this.Top + skToolMenu.Top - this.emotionForm.Height);
         }
 
         void emotionForm_Clicked(int index, Image img)
         {
             this.chatBoxSend.InsertDefaultEmotion((uint)index);
             this.emotionForm.Visible = false;
-        } 
-        #endregion                    
+        }
+        #endregion
 
         /// <summary>
         /// 自己掉线
@@ -130,10 +130,10 @@ namespace GGTalk
                 item.Status = ChatListSubItem.UserStatus.OffLine;
             }
             this.chatListBox1.Invalidate();
-        }       
+        }
 
         public void GroupmateStateChanged(string userID, UserStatus newStatus)
-        {     
+        {
             ChatListSubItem[] items = this.chatListBox1.GetSubItemsByNicName(userID);
             if (items == null || items.Length == 0)
             {
@@ -169,6 +169,15 @@ namespace GGTalk
                 return;
             }
 
+            if (type == GroupChangedType.SomeoneAdd)
+            {
+                GGUser user = this.globalUserCache.GetUser(userID);
+                this.AddUserItem(user);
+                this.AppendSysMessage(string.Format("{0}({1})加入了该群！", user.Name, user.UserID));
+                return;
+            }
+
+
             if (type == GroupChangedType.SomeoneQuit)
             {
                 GGUser user = this.globalUserCache.GetUser(userID);
@@ -181,9 +190,73 @@ namespace GGTalk
                 this.chatListBox1.Items[0].SubItems.Remove(item);
                 this.chatListBox1.Invalidate();
                 this.AppendSysMessage(string.Format("{0}({1})退出了该群！", user.Name, user.UserID));
+
                 return;
             }
-        }      
+
+            if (type == GroupChangedType.SomeoneRemove)
+            {
+                GGUser user = this.globalUserCache.GetUser(userID);
+                ChatListSubItem[] items = this.chatListBox1.GetSubItemsByNicName(userID);
+                if (items == null || items.Length == 0)
+                {
+                    return;
+                }
+                ChatListSubItem item = items[0];
+                this.chatListBox1.Items[0].SubItems.Remove(item);
+                this.chatListBox1.Invalidate();
+                this.AppendSysMessage(string.Format("{0}({1})被踢出该群！", user.Name, user.UserID));
+
+                return;
+            }
+
+
+
+
+
+            if (type == GroupChangedType.SomeoneNoSpeak)
+            {
+                GGUser user = this.globalUserCache.GetUser(userID);
+                // this.AddUserItem(user);
+                this.AppendSysMessage(string.Format("{0}({1})被管理员禁止发言！", user.Name, user.UserID));
+                this.globalUserCache.GetGroup(currentGroup.ID).AddNoSpeak(user.ID);
+                return;
+            }
+            if (type == GroupChangedType.SomeoneAllowSpeak)
+            {
+                GGUser user = this.globalUserCache.GetUser(userID);
+                // this.AddUserItem(user);
+                this.AppendSysMessage(string.Format("管理员允许{0}({1})发言！", user.Name, user.UserID));
+                this.globalUserCache.GetGroup(currentGroup.ID).RemoveNoSpeak(user.ID);
+                return;
+            }
+
+            if (type == GroupChangedType.SomeoneAddManagers)
+            {
+                GGUser user = this.globalUserCache.GetUser(userID);
+                // this.AddUserItem(user);
+                this.AppendSysMessage(string.Format("{0}({1})被设为管理员！", user.Name, user.UserID));
+                this.globalUserCache.GetGroup(currentGroup.ID).AddManager(user.ID);
+
+                if(user.ID==this.mine.ID)
+                { btn_adduser.Visible = true; }
+                
+                return;
+            }
+            if (type == GroupChangedType.SomeoneRemoveManagers)
+            {
+                GGUser user = this.globalUserCache.GetUser(userID);
+                // this.AddUserItem(user);
+                this.AppendSysMessage(string.Format(" {0}({1})被卸任管理员！", user.Name, user.UserID));
+                this.globalUserCache.GetGroup(currentGroup.ID).RemoveManager(user.ID);
+                if (user.ID == this.mine.ID)
+                { btn_adduser.Visible = false; }
+
+                return;
+            }
+
+
+        }
 
         #region OnUserInfoChanged
         public void OnUserInfoChanged(GGUser user)
@@ -199,7 +272,7 @@ namespace GGTalk
             items[0].PersonalMsg = user.Signature;
             items[0].Tag = user;
             this.chatListBox1.Invalidate();
-        } 
+        }
         #endregion
 
         #region 文字聊天
@@ -230,6 +303,22 @@ namespace GGTalk
         //发送
         private void btnSend_Click(object sender, EventArgs e)
         {
+            if (this.globalUserCache.GetGroup(currentGroup.ID).NoSpeakList != null)
+            {
+                if (this.globalUserCache.GetGroup(currentGroup.ID).NoSpeakList.Contains(this.mine.UserID))
+                // if (currentGroup.NoSpeakList.Contains(this.mine.UserID))
+                {
+                    // MessageBoxEx.Show("您已经被禁言。");
+
+                    this.AppendSysMessage("您已经被禁言!");
+                    return;
+
+                }
+            }
+
+
+
+
             ChatBoxContent content = this.chatBoxSend.GetContent();
             if (content.IsEmpty())
             {
@@ -248,9 +337,9 @@ namespace GGTalk
                 ++this.sendingCount;
                 this.gifBox_wait.Visible = true;
                 UIResultHandler handler = new UIResultHandler(this, this.HandleSentResult);
-                this.rapidPassiveEngine.ContactsOutter.BroadcastBlob(this.currentGroup.GroupID, BroadcastTypes.BroadcastChat, encrypted, null, 2048, handler.Create(), null );
-               
-                this.AppendChatBoxContent(string.Format("{0}({1})", this.mine.Name, this.mine.UserID),null, content, Color.Green);
+                this.rapidPassiveEngine.ContactsOutter.BroadcastBlob(this.currentGroup.GroupID, BroadcastTypes.BroadcastChat, encrypted, null, 2048, handler.Create(), null);
+
+                this.AppendChatBoxContent(string.Format("{0}({1})", this.mine.Name, this.mine.UserID), null, content, Color.Green);
                 ChatMessageRecord record = new ChatMessageRecord(this.mine.UserID, this.currentGroup.GroupID, buff, true);
                 GlobalResourceManager.ChatMessageRecordPersister.InsertChatMessageRecord(record);
 
@@ -285,11 +374,11 @@ namespace GGTalk
             {
                 this.toolShow.Show("因为网络原因，刚才的消息尚未发送成功！", this.skinButton_send, new Point(this.skinButton_send.Width / 2, -this.skinButton_send.Height), 3000);
             }
-        }      
+        }
         #endregion
 
         #region AppendMessage
-        private void AppendChatBoxContent(string userName,DateTime? speakTime , ChatBoxContent content, Color color)
+        private void AppendChatBoxContent(string userName, DateTime? speakTime, ChatBoxContent content, Color color)
         {
             string showTime = speakTime == null ? DateTime.Now.ToLongTimeString() : speakTime.ToString();
             this.chatBox_history.AppendRichText(string.Format("{0}  {1}\n", userName, showTime), new Font(this.Font, FontStyle.Regular), color);
@@ -338,7 +427,7 @@ namespace GGTalk
         {
             foreach (Parameter<string, int, byte[]> para in messageList)
             {
-                this.HandleReceivedMessage2(para.Arg1 ,para.Arg2, para.Arg3 ,false);
+                this.HandleReceivedMessage2(para.Arg1, para.Arg2, para.Arg3, false);
             }
         }
 
@@ -357,7 +446,7 @@ namespace GGTalk
 
         private void HandleReceivedMessage2(string broadcasterID, int broadcastType, byte[] content, bool flash)
         {
-            GlobalResourceManager.UiSafeInvoker.ActionOnUI<string,int, byte[], bool>(this.DoHandleReceivedMessage, broadcasterID, broadcastType, content, flash);
+            GlobalResourceManager.UiSafeInvoker.ActionOnUI<string, int, byte[], bool>(this.DoHandleReceivedMessage, broadcasterID, broadcastType, content, flash);
         }
 
         private void DoHandleReceivedMessage(string broadcasterID, int broadcastType, byte[] content, bool flash)
@@ -375,13 +464,13 @@ namespace GGTalk
                 this.FlashChatWindow(flash);
                 if (this.LastWordChanged != null)
                 {
-                    LastWordsRecord lastWordsRecord = new LastWordsRecord(broadcasterID ,user == null ? broadcasterID : user.Name, false, chatBoxContent);
+                    LastWordsRecord lastWordsRecord = new LastWordsRecord(broadcasterID, user == null ? broadcasterID : user.Name, false, chatBoxContent);
                     this.LastWordChanged(true, this.currentGroup.GroupID, lastWordsRecord);
                 }
                 return;
-            }   
+            }
         }
-        
+
         #endregion
 
         #region 窗体事件
@@ -403,8 +492,8 @@ namespace GGTalk
             Graphics g = e.Graphics;
             SolidBrush sb = new SolidBrush(Color.FromArgb(100, 255, 255, 255));
             g.FillRectangle(sb, new Rectangle(new Point(1, this.chatListBox1.Location.Y), new Size(Width - 2, Height - this.chatListBox1.Location.Y))); //91
-        }             
-        #endregion      
+        }
+        #endregion
 
         #region 关闭窗体
         //关闭
@@ -416,9 +505,9 @@ namespace GGTalk
         private void ChatForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             this.emotionForm.Visible = false;
-            this.emotionForm.Close();           
+            this.emotionForm.Close();
             e.Cancel = false;
-        } 
+        }
         #endregion
 
         #region 截图
@@ -431,8 +520,8 @@ namespace GGTalk
                 this.chatBoxSend.Focus();
                 this.chatBoxSend.ScrollToCaret();
             }
-        } 
-        #endregion              
+        }
+        #endregion
 
         #region 手写板
         private void toolStripButton3_Click(object sender, EventArgs e)
@@ -449,9 +538,9 @@ namespace GGTalk
                     this.chatBoxSend.ScrollToCaret();
                 }
             }
-        } 
-        #endregion        
-       
+        }
+        #endregion
+
         private void toolStripButtonEmotion_MouseUp(object sender, MouseEventArgs e)
         {
             Point pos = new Point((this.Left + 30) - (this.emotionForm.Width / 2), this.Top + skToolMenu.Top - this.emotionForm.Height);
@@ -460,12 +549,12 @@ namespace GGTalk
                 pos = new Point(10, pos.Y);
             }
             this.emotionForm.Location = pos;
-            this.emotionForm.Visible = !this.emotionForm.Visible;     
+            this.emotionForm.Visible = !this.emotionForm.Visible;
         }
 
         private void toolStripButton1_Click(object sender, EventArgs e)
         {
-            ChatRecordForm form = new ChatRecordForm(GlobalResourceManager.RemotingService,GlobalResourceManager.ChatMessageRecordPersister, this.currentGroup.GetIDName() ,this.mine.GetIDName() ,this.globalUserCache);
+            ChatRecordForm form = new ChatRecordForm(GlobalResourceManager.RemotingService, GlobalResourceManager.ChatMessageRecordPersister, this.currentGroup.GetIDName(), this.mine.GetIDName(), this.globalUserCache);
             form.Show();
         }
 
@@ -478,7 +567,7 @@ namespace GGTalk
             if (friendID == this.rapidPassiveEngine.CurrentUserID)
             {
                 return;
-            }           
+            }
 
             ChatForm form = this.ggSupporter.GetChatForm(friendID);
             form.Show();
@@ -539,9 +628,139 @@ namespace GGTalk
             }
         }
 
-        private void 设为管理员ToolStripMenuItem_Click(object sender, EventArgs e)
+        private void GroupChatForm_Load(object sender, EventArgs e)
         {
-            this.chatListBox1.Items[0].SubItems.;
+
+            if (currentGroup.CreatorID == this.mine.ID|| currentGroup.ManagerList.Contains(this.mine.ID))
+
+            { btn_adduser.Visible = true; }
+            else
+            { btn_adduser.Visible =  false; }
+
+        }
+        event EventHandler MenuItem_Click;
+        private void chatListBox1_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right && (currentGroup.CreatorID == this.mine.ID|| currentGroup.ManagerList.Contains(this.mine.ID)))
+            {
+                ChatListSubItem Item = this.chatListBox1.SelectSubItem;
+
+                if (Item != null)
+                {
+                    if (Item.ID != this.mine.ID&& Item.ID != currentGroup.CreatorID)
+                    {
+                        ContextMenuStrip contextMenuStrip = new ContextMenuStrip();
+                        ToolStripMenuItem MenuItem0 = new ToolStripMenuItem("禁言");
+                        ToolStripMenuItem MenuItem1 = new ToolStripMenuItem("解除禁言");
+                        ToolStripMenuItem MenuItem2 = new ToolStripMenuItem("踢人");
+                        ToolStripMenuItem MenuItem3 = new ToolStripMenuItem("设为管理员");
+                        ToolStripMenuItem MenuItem4 = new ToolStripMenuItem("卸任管理员");
+
+
+
+                        MenuItem_Click = (obj, arg) =>
+                       {
+                           string ItemName = ((ToolStripMenuItem)obj).AccessibilityObject.Name;
+                           try
+                           {
+                               switch (ItemName)
+                               {
+                                   case "禁言":
+                                       this.rapidPassiveEngine.CustomizeOutter.SendCertainly(null, InformationTypes.SetNoSpeak, System.Text.Encoding.UTF8.GetBytes(currentGroup.ID + "|" + Item.ID));
+                                       break;
+
+                                   case "解除禁言":
+                                       this.rapidPassiveEngine.CustomizeOutter.SendCertainly(null, InformationTypes.SetAllowSpeak, System.Text.Encoding.UTF8.GetBytes(currentGroup.ID + "|" + Item.ID));
+                                       break;
+
+                                   case "踢人":
+                                       if (!ESBasic.Helpers.WindowsHelper.ShowQuery(string.Format("您确定踢走 {0}({1}) 吗？", Item.DisplayName, Item.ID)))
+                                       {
+                                           return;
+                                       }
+                                       this.rapidPassiveEngine.CustomizeOutter.SendCertainly(null, InformationTypes.RemoveMember, System.Text.Encoding.UTF8.GetBytes(currentGroup.ID + "|" + Item.ID));
+                                       break;
+                                   case "设为管理员":
+                                       this.rapidPassiveEngine.CustomizeOutter.SendCertainly(null, InformationTypes.AddManager, System.Text.Encoding.UTF8.GetBytes(currentGroup.ID + "|" + Item.ID));
+                                       break;
+
+                                   case "卸任管理员":
+                                       this.rapidPassiveEngine.CustomizeOutter.SendCertainly(null, InformationTypes.RemoveManager, System.Text.Encoding.UTF8.GetBytes(currentGroup.ID + "|" + Item.ID));
+                                       break;
+
+
+
+
+                               }
+
+                           }
+                           catch (Exception ee)
+                           {
+                               MessageBoxEx.Show("请求超时！" + ee.Message, GlobalResourceManager.SoftwareName);
+                           }
+
+
+
+                       };
+
+
+                        MenuItem0.Click += new EventHandler(MenuItem_Click);
+                        MenuItem1.Click += new EventHandler(MenuItem_Click);
+                        MenuItem2.Click += new EventHandler(MenuItem_Click);
+                        MenuItem3.Click += new EventHandler(MenuItem_Click);
+                        MenuItem4.Click += new EventHandler(MenuItem_Click);
+
+                        if (!currentGroup.NoSpeakList.Contains(Item.ID))
+                        { contextMenuStrip.Items.Add(MenuItem0); }
+
+                        else { contextMenuStrip.Items.Add(MenuItem1); }
+
+
+                        if (currentGroup.CreatorID == this.mine.ID)
+
+                        {
+                            if (!currentGroup.ManagerList.Contains(Item.ID))
+                            { contextMenuStrip.Items.Add(MenuItem3); }
+
+                            else { contextMenuStrip.Items.Add(MenuItem4); }
+                        }
+                        contextMenuStrip.Items.Add(MenuItem2);
+                        contextMenuStrip.Show(Cursor.Position.X, Cursor.Position.Y);
+
+                    }
+
+                }
+            }
+        }
+
+
+        private void ToAddUserGroup()
+        {
+            AddUserForm form = new AddUserForm(this.rapidPassiveEngine, this.currentGroup);
+            if (form.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                // this.globalUserCache.CurrentUser.JoinGroup(form.GroupID);
+                // GGGroup group = this.globalUserCache.GetGroup(form.GroupID);
+                // this.groupListBox.AddGroup(group);
+
+                //  GroupChatForm groupChatForm = this.GetGroupChatForm(group.ID);
+                //  groupChatForm.AppendSysMessage("您已经成功加入群，可以开始聊天了...");
+                //  groupChatForm.Show();
+                //  groupChatForm.Focus();
+            }
+        }
+
+
+
+
+        private void btn_adduser_Click(object sender, EventArgs e)
+        {
+            if (this.globalUserCache.CurrentUser.UserStatus == UserStatus.OffLine)
+            {
+                return;
+            }
+
+            this.ToAddUserGroup();
         }
     }
 }

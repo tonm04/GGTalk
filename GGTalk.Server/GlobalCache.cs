@@ -10,10 +10,10 @@ using ESBasic;
 using JustLib.Records;
 
 namespace GGTalk.Server
-{   
-    internal class GlobalCache 
+{
+    internal class GlobalCache
     {
-        private IDBPersister dbPersister ;
+        private IDBPersister dbPersister;
         private ObjectManager<string, GGUser> userCache = new ObjectManager<string, GGUser>(); // key:用户ID 。 Value：用户信息
         private ObjectManager<string, GGGroup> groupCache = new ObjectManager<string, GGGroup>();  // key:组ID 。 Value：Group信息
         private ObjectManager<string, List<OfflineMessage>> offlineMessageTable = new ObjectManager<string, List<OfflineMessage>>();//key:用户ID 。 
@@ -31,7 +31,7 @@ namespace GGTalk.Server
             foreach (GGGroup group in this.dbPersister.GetAllGroup())
             {
                 this.groupCache.Add(group.GroupID, group);
-            }       
+            }
         }
 
         #region UserTable       
@@ -74,7 +74,7 @@ namespace GGTalk.Server
             user.Version = old.Version + 1;
             this.userCache.Add(user.UserID, user);
             this.dbPersister.UpdateUser(user);
-        }       
+        }
 
         /// <summary>
         /// 目标帐号是否已经存在？
@@ -90,7 +90,7 @@ namespace GGTalk.Server
         public GGUser GetUser(string userID)
         {
             return this.userCache.Get(userID);
-        } 
+        }
 
         public ChangePasswordResult ChangePassword(string userID, string oldPasswordMD5, string newPasswordMD5)
         {
@@ -104,13 +104,13 @@ namespace GGTalk.Server
             {
                 return ChangePasswordResult.OldPasswordWrong;
             }
-            
+
             user.PasswordMD5 = newPasswordMD5;
 
             this.dbPersister.ChangeUserPassword(userID, newPasswordMD5);
             return ChangePasswordResult.Succeed;
         }
-      
+
         /// <summary>
         /// 获取某个用户的好友列表。
         /// </summary>      
@@ -122,7 +122,7 @@ namespace GGTalk.Server
                 return new List<string>();
             }
 
-            return user.GetAllFriendList(); 
+            return user.GetAllFriendList();
         }
 
         /// <summary>
@@ -138,7 +138,7 @@ namespace GGTalk.Server
             }
 
             user1.AddFriend(friendID, catalogName);
-            user2.AddFriend(ownerID ,user2.DefaultFriendCatalog);
+            user2.AddFriend(ownerID, user2.DefaultFriendCatalog);
             this.dbPersister.UpdateUserFriends(user1);
             this.dbPersister.UpdateUserFriends(user2);
         }
@@ -168,7 +168,7 @@ namespace GGTalk.Server
             GGUser user = this.userCache.Get(ownerID);
             if (user == null)
             {
-                return ;
+                return;
             }
 
             user.ChangeFriendCatalogName(oldName, newName);
@@ -205,7 +205,7 @@ namespace GGTalk.Server
             {
                 return;
             }
-            user.MoveFriend(friendID, oldCatalog ,newCatalog);
+            user.MoveFriend(friendID, oldCatalog, newCatalog);
             this.dbPersister.UpdateUserFriends(user);
         }
         #endregion
@@ -232,7 +232,7 @@ namespace GGTalk.Server
                 {
                     groups.Add(g);
                 }
-            }           
+            }
             return groups;
         }
 
@@ -244,13 +244,13 @@ namespace GGTalk.Server
             {
                 return dic;
             }
-           
+
             foreach (string groupID in user.GroupList)
             {
                 GGGroup g = this.groupCache.Get(groupID);
                 if (g != null)
                 {
-                    dic.Add(groupID,g.Version);
+                    dic.Add(groupID, g.Version);
                 }
             }
             return dic;
@@ -261,24 +261,24 @@ namespace GGTalk.Server
         /// </summary>       
         public GGGroup GetGroup(string groupID)
         {
-            return this.groupCache.Get(groupID);     
+            return this.groupCache.Get(groupID);
         }
 
         /// <summary>
         /// 创建组
         /// </summary>       
-        public CreateGroupResult CreateGroup(string creatorID, string groupID, string groupName, string announce)
+        public CreateGroupResult CreateGroup(string creatorID, string groupID, string groupName, string announce, string admin, string noSpeak)
         {
             if (this.groupCache.Contains(groupID))
             {
                 return CreateGroupResult.GroupExisted;
             }
 
-            GGGroup group = new GGGroup(groupID, groupName, creatorID, announce, creatorID);            
+            GGGroup group = new GGGroup(groupID, groupName, creatorID, announce, creatorID, admin, noSpeak);
             this.groupCache.Add(groupID, group);
             this.dbPersister.InsertGroup(group);
 
-            GGUser user = this.userCache.Get(creatorID);          
+            GGUser user = this.userCache.Get(creatorID);
             user.JoinGroup(groupID);
             this.dbPersister.ChangeUserGroups(user.UserID, user.Groups);
             return CreateGroupResult.Succeed;
@@ -292,14 +292,106 @@ namespace GGTalk.Server
             GGGroup group = this.groupCache.Get(groupID);
             if (group != null)
             {
-                group.RemoveMember(userID);                
+                group.RemoveMember(userID);
             }
             this.dbPersister.UpdateGroup(group);
 
-            GGUser user = this.userCache.Get(userID);           
-            user.QuitGroup(groupID);           
-            this.dbPersister.ChangeUserGroups(user.UserID, user.Groups);         
+            GGUser user = this.userCache.Get(userID);
+            user.QuitGroup(groupID);
+            this.dbPersister.ChangeUserGroups(user.UserID, user.Groups);
         }
+
+
+        /// <summary>
+        /// 禁止发言
+        /// </summary>       
+        public void SetNoSpeakGroup(string userID, string groupID)
+        {
+            GGGroup group = this.groupCache.Get(groupID);
+            if (group != null)
+            {
+                group.AddNoSpeak(userID);
+            }
+            this.dbPersister.UpdateGroup(group);
+
+            // GGUser user = this.userCache.Get(userID);
+            // user.QuitGroup(groupID);
+              this.dbPersister.ChangeUserGroups(userID, groupID);
+        }
+
+        /// <summary>
+        /// 解除禁止发言
+        /// </summary>       
+        public void SetAllowSpeakGroup(string userID, string groupID)
+        {
+            GGGroup group = this.groupCache.Get(groupID);
+            if (group != null)
+            {
+                group.RemoveNoSpeak(userID);
+            }
+            this.dbPersister.UpdateGroup(group);
+
+            // GGUser user = this.userCache.Get(userID);
+            // user.QuitGroup(groupID);
+            this.dbPersister.ChangeUserGroups(userID, groupID);
+        }
+
+
+        /// <summary>
+        /// 踢人
+        /// </summary>       
+        public void RemoveMemberGroup(string userID, string groupID)
+        {
+            GGGroup group = this.groupCache.Get(groupID);
+            if (group != null)
+            {
+                group.RemoveMember(userID);
+            }
+            this.dbPersister.UpdateGroup(group);
+
+             GGUser user = this.userCache.Get(userID);
+             user.QuitGroup(groupID);
+            this.dbPersister.ChangeUserGroups(userID, groupID);
+        }
+
+
+        /// <summary>
+        /// 解除管理员
+        /// </summary>       
+        public void RemoveManagerGroup(string userID, string groupID)
+        {
+            GGGroup group = this.groupCache.Get(groupID);
+            if (group != null)
+            {
+                group.RemoveManager(userID);
+            }
+            this.dbPersister.UpdateGroup(group);
+
+            //GGUser user = this.userCache.Get(userID);
+            //user.QuitGroup(groupID);
+            this.dbPersister.ChangeUserGroups(userID, groupID);
+        }
+
+
+        /// <summary>
+        /// 添加管理员
+        /// </summary>       
+        public void AddManagerGroup(string userID, string groupID)
+        {
+            GGGroup group = this.groupCache.Get(groupID);
+            if (group != null)
+            {
+                group.AddManager(userID);
+            }
+            this.dbPersister.UpdateGroup(group);
+
+            // GGUser user = this.userCache.Get(userID);
+            // user.QuitGroup(groupID);
+            this.dbPersister.ChangeUserGroups(userID, groupID);
+        }
+
+
+
 
         public void DeleteGroup(string groupID)
         {
@@ -336,16 +428,68 @@ namespace GGTalk.Server
             {
                 user.JoinGroup(groupID);
                 this.dbPersister.ChangeUserGroups(user.UserID, user.Groups);
-            }            
+            }
 
             if (!group.MemberList.Contains(userID))
             {
                 group.AddMember(userID);
-                this.dbPersister.UpdateGroup(group);      
+                this.dbPersister.UpdateGroup(group);
             }
 
             return JoinGroupResult.Succeed;
         }
+
+
+
+        /// <summary>
+        /// 把某人加入某个组。
+        /// </summary>        
+        public AddMemberResult AddMember(string userID, string groupID)
+        {
+            GGUser user = this.userCache.Get(userID);
+            if (user == null)
+            {
+                return AddMemberResult.MemberNotExist;
+            }
+
+
+            //GGGroup group = this.groupCache.Get(groupID);
+            //if (group == null)
+            //{
+            //    return JoinGroupResult.GroupNotExist;
+            //}
+
+
+            GGGroup group = this.groupCache.Get(groupID);
+            if (!group.MemberList.Contains(userID))
+            {
+                group.AddMember(userID);
+                this.dbPersister.UpdateGroup(group);
+            }
+
+
+
+
+
+           // GGUser user = this.userCache.Get(userID);
+            if (!user.GroupList.Contains(groupID))
+            {
+                user.JoinGroup(groupID);
+                this.dbPersister.ChangeUserGroups(user.UserID, user.Groups);
+            }
+
+            //if (!group.MemberList.Contains(userID))
+            //{
+            //    group.AddMember(userID);
+            //    this.dbPersister.UpdateGroup(group);
+            //}
+
+            return AddMemberResult.Succeed;
+        }
+
+
+
+
 
         /// <summary>
         /// 获取某个用户的所有联系人（组友，好友）。
@@ -376,12 +520,12 @@ namespace GGTalk.Server
                 }
             }
 
-            return contacts;  
+            return contacts;
         }
         #endregion
 
         #region OfflineMessage
-         /// <summary>
+        /// <summary>
         /// 存储离线消息。
         /// </summary>       
         /// <param name="msg">要存储的离线消息</param>
@@ -466,5 +610,5 @@ namespace GGTalk.Server
             return this.dbPersister.GetGroupChatRecordPage(timeScope, groupID, pageSize, pageIndex);
         }
         #endregion               
-    }    
+    }
 }

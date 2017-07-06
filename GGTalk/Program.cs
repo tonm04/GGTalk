@@ -20,9 +20,9 @@ namespace GGTalk
         [STAThread]
         static void Main()
         {
-            try
-            {
-                Application.EnableVisualStyles();
+            //try
+            //{
+                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
 
                 GlobalResourceManager.PreInitialize();
@@ -56,12 +56,12 @@ namespace GGTalk
                 nDiskPassiveHandler.Initialize(passiveEngine.FileOutter, null);
                 mainForm.Initialize(passiveEngine, loginForm.LoginStatus, loginForm.StateImage);
                 Application.Run(mainForm);
-            }
-            catch (Exception ee)
-            {
-                MessageBoxEx.Show(ee.Message);
-                ee = ee;
-            }
+            //}
+            //catch (Exception ee)
+            //{
+            //    MessageBoxEx.Show(ee.Message);
+            //    ee = ee;
+            //}
         }
     }
 

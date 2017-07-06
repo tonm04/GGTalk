@@ -36,10 +36,10 @@ namespace GGTalk
             this.passwordMD5 = pwd;
             this.Name = _name;
             this.friends = _friends;
-            this.Signature = _signature;           
+            this.Signature = _signature;
             this.HeadImageIndex = headIndex;
             this.groups = _groups;
-        }  
+        }
 
         #region PasswordMD5
         private string passwordMD5 = "";
@@ -94,7 +94,7 @@ namespace GGTalk
         }
 
         #region 非DB字段
-        private Dictionary<string,List<string>> friendDicationary = null;
+        private Dictionary<string, List<string>> friendDicationary = null;
         /// <summary>
         /// 好友ID的分组。非DB字段。
         /// </summary>
@@ -120,7 +120,7 @@ namespace GGTalk
                             friends.Remove("");
                         }
                         this.friendDicationary.Add(catalogName, friends);
-                    }                          
+                    }
                 }
                 return friendDicationary;
             }
@@ -153,14 +153,14 @@ namespace GGTalk
                     sb.Append(";");
                 }
                 string ff = ESBasic.Helpers.StringHelper.ContactString(pair.Value, ",");
-                sb.Append(string.Format("{0}:{1}" ,pair.Key ,ff));
+                sb.Append(string.Format("{0}:{1}", pair.Key, ff));
                 ++count;
             }
             return sb.ToString();
         }
         #endregion
 
-        public void AddFriend(string friendID ,string catalog)
+        public void AddFriend(string friendID, string catalog)
         {
             if (!this.FriendDicationary.ContainsKey(catalog))
             {
@@ -249,7 +249,7 @@ namespace GGTalk
 
         public List<string> GetFriendCatalogList()
         {
-            return new List<string> ( this.FriendDicationary.Keys);
+            return new List<string>(this.FriendDicationary.Keys);
         }
         #endregion
 
@@ -262,7 +262,7 @@ namespace GGTalk
         {
             get { return groups; }
             set
-            {                
+            {
                 groups = value;
                 this.groupList = null;
             }
@@ -312,8 +312,8 @@ namespace GGTalk
         {
             get { return createTime; }
             set { createTime = value; }
-        } 
-        #endregion        
+        }
+        #endregion
 
         #region Signature
         private string signature = "";
@@ -365,17 +365,17 @@ namespace GGTalk
         /// </summary>
         public string DefaultFriendCatalog
         {
-            get 
+            get
             {
                 if (string.IsNullOrEmpty(this.defaultFriendCatalog))
                 {
                     this.defaultFriendCatalog = "我的好友";
                 }
-                return defaultFriendCatalog; 
+                return defaultFriendCatalog;
             }
             set { defaultFriendCatalog = value; }
-        } 
-        #endregion        
+        }
+        #endregion
 
         #region Version
         private int version = 0;
@@ -383,7 +383,7 @@ namespace GGTalk
         {
             get { return version; }
             set { version = value; }
-        } 
+        }
         #endregion
 
         #region 非DB字段
@@ -440,11 +440,11 @@ namespace GGTalk
 
             if (this.HeadImage != null)
             {
-                this.headIcon = ImageHelper.ConvertToIcon(this.headImage ,64);
+                this.headIcon = ImageHelper.ConvertToIcon(this.headImage, 64);
                 return this.headIcon;
             }
 
-            this.headIcon = ImageHelper.ConvertToIcon(defaultHeadImages[this.headImageIndex],64);
+            this.headIcon = ImageHelper.ConvertToIcon(defaultHeadImages[this.headImageIndex], 64);
             return this.headIcon;
         }
         #endregion
@@ -454,7 +454,7 @@ namespace GGTalk
         /// <summary>
         /// 在线状态。非DB字段。
         /// </summary>
-        [NotDBField] 
+        [NotDBField]
         public UserStatus UserStatus
         {
             get { return userStatus; }
@@ -467,12 +467,12 @@ namespace GGTalk
         /// <summary>
         /// 可用于存储 LastWordsRecord。
         /// </summary>
-        [NotDBField] 
+        [NotDBField]
         public object Tag
         {
             get { return tag; }
             set { tag = value; }
-        } 
+        }
         #endregion
 
         #region LastWords
@@ -494,7 +494,7 @@ namespace GGTalk
                 string content = record.ChatBoxContent.GetTextWithPicPlaceholder("[图]");
                 return string.Format("{0}： {1}", record.IsMe ? "我" : "TA", content);
             }
-        } 
+        }
         #endregion
         #endregion
 
@@ -505,7 +505,7 @@ namespace GGTalk
             {
                 return this.userStatus != UserStatus.OffLine;
             }
-        } 
+        }
         #endregion
 
         #region OfflineOrHide
@@ -527,13 +527,13 @@ namespace GGTalk
 
         public override string ToString()
         {
-            return string.Format("{0}({1})-{2}，Ver：{3}" ,this.name,this.UserID,this.userStatus,this.version);
+            return string.Format("{0}({1})-{2}，Ver：{3}", this.name, this.UserID, this.userStatus, this.version);
         }
 
         public Parameter<string, string> GetIDName()
         {
             return new Parameter<string, string>(this.UserID, this.Name);
-        }       
+        }
 
         #region PartialCopy
         [NonSerialized]
@@ -567,9 +567,9 @@ namespace GGTalk
         {
             get { return false; }
         }
-       
-        #endregion       
-    
+
+        #endregion
+
         public string Department
         {
             get { return ""; }
@@ -604,6 +604,8 @@ namespace GGTalk
         public const string _CreatorID = "CreatorID";
         public const string _Announce = "Announce";
         public const string _Members = "Members";
+        public const string _NoSpeak = "NoSpeak";
+        public const string _Managers = "Managers";
         public const string _CreateTime = "CreateTime";
         public const string _Version = "Version";
         #endregion
@@ -616,14 +618,43 @@ namespace GGTalk
         #endregion
 
         public GGGroup() { }
-        public GGGroup(string id, string _name, string _creator ,string _announce ,string _members)
+        public GGGroup(string id, string _name, string _creator, string _announce, string _members, string _managers, string _NoSpeak)
         {
             this.groupID = id;
             this.name = _name;
-            this.creatorID = _creator;          
+            this.creatorID = _creator;
             this.announce = _announce;
             this.members = _members;
+            this.managers = _managers;
+            this.noSpeak = _NoSpeak;
         }
+
+
+        //#region Admin
+        //private string admin = "";
+        //public string Admin
+        //{
+        //    get { return admin; }
+        //    set { admin = value; }
+        //}
+        //#endregion
+
+        #region Admin
+        private string noSpeak = "";
+        public string NoSpeak
+        {
+            get { return noSpeak; }
+            //set { noSpeak = value; }
+
+            set
+            {
+                noSpeak = value;
+                this.noSpeakList = null;
+
+                // this.noSpeakList=  new List<string>(this.noSpeak.Split(','));
+            }
+        }
+        #endregion
 
         #region GroupID
         private string groupID = "";
@@ -652,7 +683,7 @@ namespace GGTalk
         {
             get { return creatorID; }
             set { creatorID = value; }
-        } 
+        }
         #endregion
 
         #region CreateTime
@@ -664,7 +695,7 @@ namespace GGTalk
         {
             get { return createTime; }
             set { createTime = value; }
-        } 
+        }
         #endregion
 
         #region Announce
@@ -703,12 +734,12 @@ namespace GGTalk
         public string Members
         {
             get { return members; }
-            set 
-            { 
+            set
+            {
                 members = value;
                 this.memberList = null;
             }
-        } 
+        }
         #endregion
 
         #region Version
@@ -723,7 +754,7 @@ namespace GGTalk
         #region 非DB字段
         #region Tag
         private object tag;
-        [NotDBField] 
+        [NotDBField]
         public object Tag
         {
             get { return tag; }
@@ -772,6 +803,54 @@ namespace GGTalk
         #endregion
 
         #region MemberList
+
+
+        #region noSpeakList
+        private List<string> noSpeakList = null;
+        /// <summary>
+        /// 非DB字段
+        /// </summary>
+        public List<string> NoSpeakList
+        {
+            get
+            {
+                if (noSpeakList == null)
+                {
+                    if (this.noSpeak != null)
+
+                    {
+                        this.noSpeakList = new List<string>(this.noSpeak.Split(','));
+                        this.noSpeakList.Remove("");
+                    }
+
+                    else
+                    {
+                        this.noSpeakList = new List<string>();
+                    }
+                }
+
+                //else
+                //{
+                //    noSpeakList = new List<string>();
+                //}
+
+                return noSpeakList;
+            }
+            //set {
+
+            //    noSpeakList = new List<string>();
+            //}
+        }
+        #endregion
+
+
+
+
+
+
+
+
+
         private List<string> managerList = null;
         /// <summary>
         /// 非DB字段
@@ -790,7 +869,7 @@ namespace GGTalk
             }
         }
         #endregion
-         
+
         #endregion
 
         public void AddMember(string userID)
@@ -806,6 +885,41 @@ namespace GGTalk
         {
             this.MemberList.Remove(userID);
             this.Members = ESBasic.Helpers.StringHelper.ContactString<string>(this.MemberList, ",");
+        }
+
+
+
+
+
+        public void AddNoSpeak(string userID)
+        {
+            if (this.NoSpeakList != null)
+
+            {
+                if (!this.NoSpeakList.Contains(userID))
+                {
+                    this.NoSpeakList.Add(userID);
+                    this.NoSpeak = ESBasic.Helpers.StringHelper.ContactString<string>(this.NoSpeakList, ",");
+                }
+            }
+            else
+            {
+                //this.NoSpeakList = new List<string>();
+
+
+                this.NoSpeakList.Add(userID);
+                this.NoSpeak = ESBasic.Helpers.StringHelper.ContactString<string>(this.NoSpeakList, ",");
+
+            }
+
+
+
+        }
+
+        public void RemoveNoSpeak(string userID)
+        {
+            this.NoSpeakList.Remove(userID);
+            this.NoSpeak = ESBasic.Helpers.StringHelper.ContactString<string>(this.NoSpeakList, ",");
         }
 
         public void AddManager(string userID)
@@ -843,8 +957,8 @@ namespace GGTalk
         {
             get { return true; }
         }
-    } 
-    #endregion        
+    }
+    #endregion
 
     #region OfflineMessage
     /// <summary>
@@ -931,32 +1045,32 @@ namespace GGTalk
     /// 离线文件条目
     /// </summary>
     public class OfflineFileItem
-    {        
+    {
         /// <summary>
         /// 条目的唯一编号，数据库自增序列，主键。
         /// </summary>
         public string AutoID { get; set; }
-       
+
         /// <summary>
         /// 离线文件的名称。
         /// </summary>
         public string FileName { get; set; }
-       
+
         /// <summary>
         /// 文件的大小。
         /// </summary>
         public ulong FileLength { get; set; }
-       
+
         /// <summary>
         /// 发送者ID。
         /// </summary>
         public string SenderID { get; set; }
-     
+
         /// <summary>
         /// 接收者ID。
         /// </summary>
         public string AccepterID { get; set; }
-       
+
         /// <summary>
         /// 在服务器上存储离线文件的临时路径。
         /// </summary>
@@ -983,7 +1097,7 @@ namespace GGTalk
         {
             get { return speakerID; }
             set { speakerID = value; }
-        } 
+        }
         #endregion
 
         #region SpeakerName
@@ -992,7 +1106,7 @@ namespace GGTalk
         {
             get { return speakerName; }
             set { speakerName = value; }
-        } 
+        }
         #endregion
 
         #region ChatBoxContent
@@ -1022,6 +1136,6 @@ namespace GGTalk
         }
         #endregion
 
-    } 
+    }
     #endregion
 }

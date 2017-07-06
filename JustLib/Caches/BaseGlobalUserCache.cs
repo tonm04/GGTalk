@@ -560,6 +560,26 @@ namespace JustLib.Caches
             }
         }
 
+        public void OnSomeoneAddGroup(string groupID, string userID)
+        {
+            TGroup group = this.groupManager.Get(groupID);
+            if (group == null || group.MemberList.Contains(userID))
+            {
+                return;
+            }
+            group.MemberList.Add(userID);
+
+            if (this.GroupChanged != null)
+            {
+                this.GroupChanged(group, GroupChangedType.SomeoneAdd, userID);
+            }
+        }
+
+
+
+
+
+
         public void OnSomeoneQuitGroup(string groupID, string userID)
         {
             TGroup group = this.groupManager.Get(groupID);
@@ -574,6 +594,111 @@ namespace JustLib.Caches
                 this.GroupChanged(group, GroupChangedType.SomeoneQuit, userID);
             }
         }
+
+
+        public void OnSomeoneRemoveGroup(string groupID, string userID)
+        {
+            TGroup group = this.groupManager.Get(groupID);
+            if (group == null || !group.MemberList.Contains(userID))
+            {
+                return;
+            }
+
+            group.NoSpeakList.Remove(userID);
+            group.MemberList.Remove(userID);
+
+            if (this.GroupChanged != null)
+            {
+                this.GroupChanged(group, GroupChangedType.SomeoneRemove, userID);
+            }
+        }
+
+
+
+        public void OnSomeoneNoSpeakGroup(string groupID, string userID)
+        {
+            TGroup group = this.groupManager.Get(groupID);
+
+            if (group.NoSpeakList != null)
+
+            {
+                if (group == null || group.NoSpeakList.Contains(userID))
+                {
+                    return;
+                }
+            }
+
+
+            group.NoSpeakList.Add(userID);
+
+            if (this.GroupChanged != null)
+            {
+                this.GroupChanged(group, GroupChangedType.SomeoneNoSpeak, userID);
+            }
+        }
+
+
+
+        public void OnSomeoneRemoveManagerGroup(string groupID, string userID)
+        {
+            TGroup group = this.groupManager.Get(groupID);
+            if (group == null  )
+            {
+                return;
+            }
+            group.ManagerList.Remove(userID);
+
+            if (this.GroupChanged != null)
+            {
+                this.GroupChanged(group, GroupChangedType.SomeoneRemoveManagers, userID);
+            }
+        }
+
+
+        public void OnSomeoneAddManagerGroup(string groupID, string userID)
+        {
+            TGroup group = this.groupManager.Get(groupID);
+
+            if (group.ManagerList != null)
+
+            {
+                if (group == null || group.ManagerList.Contains(userID))
+                {
+                    return;
+                }
+            }
+
+
+            group.ManagerList.Add(userID);
+
+            if (this.GroupChanged != null)
+            {
+                this.GroupChanged(group, GroupChangedType.SomeoneAddManagers, userID);
+            }
+        }
+
+
+
+        public void OnSomeoneAllowSpeakGroup(string groupID, string userID)
+        {
+            TGroup group = this.groupManager.Get(groupID);
+            if (group == null)
+            {
+                return;
+            }
+            group.NoSpeakList.Remove(userID);
+
+            if (this.GroupChanged != null)
+            {
+                this.GroupChanged(group, GroupChangedType.SomeoneAllowSpeak, userID);
+            }
+        }
+
+
+
+
+
+
         #endregion        
-    }  
+    }
 }

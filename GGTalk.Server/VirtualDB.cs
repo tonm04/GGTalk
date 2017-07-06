@@ -95,8 +95,8 @@ namespace GGTalk.Server
         public List<GGGroup> GetAllGroup()
         {
             List<GGGroup> list = new List<GGGroup>();
-            list.Add(new GGGroup("G001", "测试群1", "10000", "本周周末安排加班！", "10000,10001,10002,10003,10004"));
-            list.Add(new GGGroup("G002", "测试群2", "10000", "春节长假快到了，请大家做好收尾工作！", "10000,10001"));
+            list.Add(new GGGroup("G001", "测试群1", "10000", "本周周末安排加班！", "10000,10001,10002,10003,10004", "10000",""));
+            list.Add(new GGGroup("G002", "测试群2", "10000", "春节长假快到了，请大家做好收尾工作！", "10000,10001", "10000", ""));
             return list;
         }
         #endregion

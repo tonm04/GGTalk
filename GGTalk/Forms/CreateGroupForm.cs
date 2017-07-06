@@ -65,7 +65,7 @@ namespace GGTalk
                     return;
                 }
                
-                this.group = new GGGroup(groupID, contract.Name,this.rapidPassiveEngine.CurrentUserID,"",this.rapidPassiveEngine.CurrentUserID);               
+                this.group = new GGGroup(groupID, contract.Name,this.rapidPassiveEngine.CurrentUserID,"",this.rapidPassiveEngine.CurrentUserID, this.rapidPassiveEngine.CurrentUserID,"");               
                 this.DialogResult = System.Windows.Forms.DialogResult.OK;
             }
             catch (Exception ee)
