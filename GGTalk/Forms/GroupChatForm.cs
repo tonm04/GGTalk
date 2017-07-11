@@ -238,9 +238,9 @@ namespace GGTalk
                 this.AppendSysMessage(string.Format("{0}({1})被设为管理员！", user.Name, user.UserID));
                 this.globalUserCache.GetGroup(currentGroup.ID).AddManager(user.ID);
 
-                if(user.ID==this.mine.ID)
+                if (user.ID == this.mine.ID)
                 { btn_adduser.Visible = true; }
-                
+
                 return;
             }
             if (type == GroupChangedType.SomeoneRemoveManagers)
@@ -306,10 +306,8 @@ namespace GGTalk
             if (this.globalUserCache.GetGroup(currentGroup.ID).NoSpeakList != null)
             {
                 if (this.globalUserCache.GetGroup(currentGroup.ID).NoSpeakList.Contains(this.mine.UserID))
-                // if (currentGroup.NoSpeakList.Contains(this.mine.UserID))
-                {
-                    // MessageBoxEx.Show("您已经被禁言。");
 
+                {
                     this.AppendSysMessage("您已经被禁言!");
                     return;
 
@@ -340,8 +338,13 @@ namespace GGTalk
                 this.rapidPassiveEngine.ContactsOutter.BroadcastBlob(this.currentGroup.GroupID, BroadcastTypes.BroadcastChat, encrypted, null, 2048, handler.Create(), null);
 
                 this.AppendChatBoxContent(string.Format("{0}({1})", this.mine.Name, this.mine.UserID), null, content, Color.Green);
-                ChatMessageRecord record = new ChatMessageRecord(this.mine.UserID, this.currentGroup.GroupID, buff, true);
+                ChatMessageRecord record = new ChatMessageRecord(this.mine.UserID, this.currentGroup.GroupID, buff, true, false);
                 GlobalResourceManager.ChatMessageRecordPersister.InsertChatMessageRecord(record);
+
+
+
+
+
 
                 //清空输入框
                 this.chatBoxSend.Text = string.Empty;
@@ -469,6 +472,41 @@ namespace GGTalk
                 }
                 return;
             }
+            else
+            {
+
+
+                string c = System.Text.Encoding.UTF8.GetString(content);
+
+
+
+                //ChatBoxContent chatBoxContent = CompactPropertySerializer.Default.Deserialize<ChatBoxContent>(content, 0);
+
+                ChatBoxContent chatBoxContent = new ChatBoxContent();
+                chatBoxContent.Text = c;
+
+
+
+
+                GGUser user = this.globalUserCache.GetUser(broadcasterID);
+                string talker = string.Format("{0}({1})", broadcasterID, broadcasterID);
+                if (user != null)
+                {
+                    talker = string.Format("{0}({1})", user.Name, user.UserID);
+                }
+                this.AppendChatBoxContent(talker, null, chatBoxContent, Color.Blue);
+                this.FlashChatWindow(flash);
+                if (this.LastWordChanged != null)
+                {
+                    LastWordsRecord lastWordsRecord = new LastWordsRecord(broadcasterID, user == null ? broadcasterID : user.Name, false, chatBoxContent);
+                    this.LastWordChanged(true, this.currentGroup.GroupID, lastWordsRecord);
+                }
+                return;
+
+
+            }
+
+
         }
 
         #endregion
@@ -631,23 +669,31 @@ namespace GGTalk
         private void GroupChatForm_Load(object sender, EventArgs e)
         {
 
-            if (currentGroup.CreatorID == this.mine.ID|| currentGroup.ManagerList.Contains(this.mine.ID))
+            if (currentGroup.CreatorID == this.mine.ID || currentGroup.ManagerList.Contains(this.mine.ID))
 
-            { btn_adduser.Visible = true; }
+            {
+                btn_adduser.Visible = true;
+               // btn_notice.Visible = true;
+
+            }
             else
-            { btn_adduser.Visible =  false; }
+            {
+                btn_adduser.Visible = false;
+              //  btn_notice.Visible = false;
+
+            }
 
         }
         event EventHandler MenuItem_Click;
         private void chatListBox1_MouseClick(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Right && (currentGroup.CreatorID == this.mine.ID|| currentGroup.ManagerList.Contains(this.mine.ID)))
+            if (e.Button == MouseButtons.Right && (currentGroup.CreatorID == this.mine.ID || currentGroup.ManagerList.Contains(this.mine.ID)))
             {
                 ChatListSubItem Item = this.chatListBox1.SelectSubItem;
 
                 if (Item != null)
                 {
-                    if (Item.ID != this.mine.ID&& Item.ID != currentGroup.CreatorID)
+                    if (Item.ID != this.mine.ID && Item.ID != currentGroup.CreatorID)
                     {
                         ContextMenuStrip contextMenuStrip = new ContextMenuStrip();
                         ToolStripMenuItem MenuItem0 = new ToolStripMenuItem("禁言");
@@ -761,6 +807,29 @@ namespace GGTalk
             }
 
             this.ToAddUserGroup();
+        }
+
+        private void btn_notice_Click(object sender, EventArgs e)
+        {
+
+            //AddNoticeForm form = new AddNoticeForm(this.rapidPassiveEngine, this.currentGroup);
+            //form.ShowDialog();
+
+
+
+            //NoticeRecordForm form = new NoticeRecordForm(this.rapidPassiveEngine, this.currentGroup);
+
+            //form.ShowDialog();
+
+            
+
+
+            NoticeRecordForm form = new NoticeRecordForm(GlobalResourceManager.RemotingService, GlobalResourceManager.ChatMessageRecordPersister, this.currentGroup.GetIDName(), this.mine.GetIDName(), this.globalUserCache, this.rapidPassiveEngine, this.currentGroup);
+            form.Show();
+
+
+
+
         }
     }
 }

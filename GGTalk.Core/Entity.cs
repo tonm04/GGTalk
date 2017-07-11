@@ -861,8 +861,18 @@ namespace GGTalk
             {
                 if (managerList == null)
                 {
-                    this.managerList = new List<string>(this.managers.Split(','));
-                    this.managerList.Remove("");
+                    if (this.managers != null)
+
+                    {
+                        this.managerList = new List<string>(this.managers.Split(','));
+                        this.managerList.Remove("");
+
+                    }
+
+                    else
+                    {
+                        this.managerList = new List<string>();
+                    }
                 }
 
                 return managerList;

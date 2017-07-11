@@ -66,7 +66,17 @@ namespace GGTalk.Server
         {
             ChatRecordPage page = this.globalCache.GetGroupChatRecordPage(timeScope ,groupID, pageSize, pageIndex);
             return page;
-        }       
+        }
+
+
+        public ChatRecordPage GetGroupNoticeRecordPage(ChatRecordTimeScope timeScope, string groupID, int pageSize, int pageIndex)
+        {
+            ChatRecordPage page = this.globalCache.GetGroupChatRecordPage(timeScope, groupID, pageSize, pageIndex);
+            return page;
+        }
+
+
+
 
         public void InsertChatMessageRecord(ChatMessageRecord record)
         {

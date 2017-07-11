@@ -141,6 +141,52 @@ namespace GGTalk.Server
 
             return new ChatRecordPage(totalCount, pageIndex, page); ;
         }
+
+
+
+
+        public ChatRecordPage GetGroupNoticeRecordPage(ChatRecordTimeScope timeScope, string groupID, int pageSize, int pageIndex)
+        {
+            int totalCount = 0;
+            if (pageSize <= 0 || pageIndex < 0)
+            {
+                return new ChatRecordPage(totalCount, pageIndex, new List<ChatMessageRecord>());
+            }
+
+            if (!this.groupChatRecordTable.Contains(groupID))
+            {
+                return new ChatRecordPage(totalCount, pageIndex, new List<ChatMessageRecord>());
+            }
+
+            List<ChatMessageRecord> records = this.groupChatRecordTable.Get(groupID);
+            totalCount = records.Count;
+            int pageCount = records.Count / pageSize;
+            if (records.Count % pageSize > 0)
+            {
+                ++pageCount;
+            }
+
+            if (pageIndex == int.MaxValue)
+            {
+                pageIndex = pageCount - 1;
+            }
+
+            if (pageIndex >= pageCount)
+            {
+                return new ChatRecordPage(totalCount, pageIndex, new List<ChatMessageRecord>());
+            }
+
+            List<ChatMessageRecord> page = new List<ChatMessageRecord>();
+            for (int i = pageIndex * pageSize; i < records.Count && page.Count <= pageSize; i++)
+            {
+                page.Add(records[i]);
+            }
+
+            return new ChatRecordPage(totalCount, pageIndex, page); ;
+        }
+
+
+
         #endregion
 
         #region GetChatRecordPage

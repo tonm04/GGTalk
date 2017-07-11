@@ -20,6 +20,7 @@ namespace JustLib.Records
         public const string _SpeakerID = "SpeakerID";
         public const string _AudienceID = "AudienceID";
         public const string _IsGroupChat = "IsGroupChat";
+        public const string _IsNotice = "IsNotice";
         public const string _Content = "Content";
         public const string _OccureTime = "OccureTime";
         #endregion
@@ -32,12 +33,13 @@ namespace JustLib.Records
         #endregion
 
         public ChatMessageRecord() { }
-        public ChatMessageRecord(string speaker, string audience, byte[] _content, bool groupChat)
+        public ChatMessageRecord(string speaker, string audience, byte[] _content, bool groupChat, bool notice)
         {
             this.speakerID = speaker;
             this.audienceID = audience;
             this.Content = _content;
             this.isGroupChat = groupChat;
+            this.isNotice = notice;
         }
 
         #region AutoID
@@ -109,6 +111,18 @@ namespace JustLib.Records
         {
             get { return isGroupChat; }
             set { isGroupChat = value; }
+        }
+        #endregion
+
+        #region IsNotice
+        private bool isNotice = false;
+        /// <summary>
+        /// 是否为群公告。
+        /// </summary>
+        public bool IsNotice
+        {
+            get { return isNotice; }
+            set { isNotice = value; }
         }
         #endregion
 
@@ -195,6 +209,21 @@ namespace JustLib.Records
         /// <param name="pageIndex">页索引</param>     
         /// <returns>聊天记录页</returns>
         ChatRecordPage GetGroupChatRecordPage(ChatRecordTimeScope timeScope, string groupID, int pageSize, int pageIndex);
+
+
+        /// <summary>
+        /// 获取一页群聊天记录。
+        /// </summary>
+        /// <param name="timeScope">日期范围</param>
+        /// <param name="groupID">群ID</param>
+        /// <param name="pageSize">页大小</param>
+        /// <param name="pageIndex">页索引</param>     
+        /// <returns>聊天记录页</returns>
+        ChatRecordPage GetGroupNoticeRecordPage(ChatRecordTimeScope timeScope, string groupID, int pageSize, int pageIndex);
+
+
+
+
     } 
     #endregion
 
@@ -299,6 +328,85 @@ namespace JustLib.Records
             return new ChatRecordPage(totalCount, pageIndex, new List<ChatMessageRecord>(page));
         }
 
+
+        /// <summary>
+        /// 获取一页群聊天记录。
+        /// </summary>
+        /// <param name="groupID">群ID</param>
+        /// <param name="pageSize">页大小</param>
+        /// <param name="pageIndex">页索引</param>     
+        /// <returns>聊天记录页</returns>
+        public ChatRecordPage GetGroupNoticeRecordPage(ChatRecordTimeScope chatRecordTimeScope, string groupID, int pageSize, int pageIndex)
+        {
+            if (this.transactionScopeFactory == null)
+            {
+                return new ChatRecordPage(0, 0, new List<ChatMessageRecord>());
+            }
+
+            DateTimeScope timeScope = null;
+            DateTime now = DateTime.Now;
+            if (chatRecordTimeScope == ChatRecordTimeScope.RecentWeek) //一周
+            {
+                timeScope = new DateTimeScope(now.AddDays(-7), now);
+            }
+            else if (chatRecordTimeScope == ChatRecordTimeScope.RecentMonth)//一月
+            {
+                timeScope = new DateTimeScope(now.AddDays(-31), now);
+            }
+            else if (chatRecordTimeScope == ChatRecordTimeScope.Recent3Month)//三月
+            {
+                timeScope = new DateTimeScope(now.AddDays(-91), now);
+            }
+            else //全部
+            {
+            }
+
+            List<Filter> filterList = new List<Filter>();
+            filterList.Add(new Filter(ChatMessageRecord._AudienceID, groupID));
+            filterList.Add(new Filter(ChatMessageRecord._IsGroupChat, true));
+            filterList.Add(new Filter(ChatMessageRecord._IsNotice, true));
+            if (timeScope != null)
+            {
+                filterList.Add(new Filter(ChatMessageRecord._OccureTime, new DateTime[] { timeScope.StartDate, timeScope.EndDate }, ComparisonOperators.BetweenAnd));
+            }
+            SimpleFilterTree tree = new SimpleFilterTree(filterList);
+
+            //最后一页
+            if (pageIndex == int.MaxValue)
+            {
+                int total = 0;
+                using (TransactionScope scope = this.transactionScopeFactory.NewTransactionScope())
+                {
+                    IOrmAccesser<ChatMessageRecord> accesser = scope.NewOrmAccesser<ChatMessageRecord>();
+                    total = (int)accesser.GetCount(tree);
+                    scope.Commit();
+                }
+                int pageCount = total / pageSize;
+                if (total % pageSize > 0)
+                {
+                    pageCount += 1;
+                }
+                pageIndex = pageCount - 1;
+            }
+
+            int totalCount = 0;
+            ChatMessageRecord[] page = null;
+            using (TransactionScope scope = this.transactionScopeFactory.NewTransactionScope())
+            {
+                IOrmAccesser<ChatMessageRecord> accesser = scope.NewOrmAccesser<ChatMessageRecord>();
+                page = accesser.GetPage(tree, pageSize, pageIndex, ChatMessageRecord._AutoID, true, out totalCount);
+                scope.Commit();
+            }
+            return new ChatRecordPage(totalCount, pageIndex, new List<ChatMessageRecord>(page));
+        }
+
+
+
+
+
+
+
+
         /// <summary>
         /// 获取一页与好友的聊天记录。
         /// </summary>
@@ -396,7 +504,7 @@ namespace JustLib.Records
 
                 if (isNew)
                 {
-                    string sql = "CREATE TABLE ChatMessageRecord (AutoID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, SpeakerID VARCHAR( 0, 20 ) NOT NULL, AudienceID VARCHAR( 0, 20 ) NOT NULL, IsGroupChat BOOLEAN NOT NULL, Content BLOB NOT NULL, OccureTime DATETIME NOT NULL ); "
+                    string sql = "CREATE TABLE ChatMessageRecord (AutoID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, SpeakerID VARCHAR( 0, 20 ) NOT NULL, AudienceID VARCHAR( 0, 20 ) NOT NULL, IsGroupChat BOOLEAN NOT NULL,IsNotice BOOLEAN NOT NULL, Content BLOB NOT NULL, OccureTime DATETIME NOT NULL ); "
                                + "CREATE INDEX idx_ChatMessageRecord ON ChatMessageRecord ( SpeakerID, AudienceID, OccureTime DESC );"
                                + "CREATE INDEX idx2_ChatMessageRecord ON ChatMessageRecord ( AudienceID, IsGroupChat, OccureTime );";
                     using (TransactionScope scope = transactionScopeFactory.NewTransactionScope())

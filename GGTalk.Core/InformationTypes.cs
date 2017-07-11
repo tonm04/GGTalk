@@ -314,6 +314,12 @@ namespace GGTalk
         public const int RemoveManager = 95;
 
 
+        /// <summary>
+        /// 群公告（C->S）
+        /// </summary>
+        public const int BroadcastNotice = 96;
+
+
 
 
 
@@ -376,6 +382,11 @@ namespace GGTalk
         /// 解除管理员
         /// </summary>
         public const int SomeoneRemoveManagerGroup = 10;
+
+        /// <summary>
+        /// 群公告
+        /// </summary>
+        public const int BroadcastNotice = 11;
 
 
 

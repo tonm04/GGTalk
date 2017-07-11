@@ -591,7 +591,7 @@ namespace GGTalk.Server
         #region ChatRecord
         public void StoreChatRecord(string senderID, string accepterID, byte[] content)
         {
-            this.dbPersister.InsertChatMessageRecord(new ChatMessageRecord(senderID, accepterID, content, false));
+            this.dbPersister.InsertChatMessageRecord(new ChatMessageRecord(senderID, accepterID, content, false, false));
         }
 
 
@@ -602,13 +602,28 @@ namespace GGTalk.Server
 
         public void StoreGroupChatRecord(string groupID, string senderID, byte[] content)
         {
-            this.dbPersister.InsertChatMessageRecord(new ChatMessageRecord(senderID, groupID, content, true));
+            this.dbPersister.InsertChatMessageRecord(new ChatMessageRecord(senderID, groupID, content, true, false));
         }
+
+        public void StoreGroupNoticeRecord(string groupID, string senderID, byte[] content)
+        {
+            this.dbPersister.InsertChatMessageRecord(new ChatMessageRecord(senderID, groupID, content, true, true));
+        }
+
 
         public ChatRecordPage GetGroupChatRecordPage(ChatRecordTimeScope timeScope, string groupID, int pageSize, int pageIndex)
         {
             return this.dbPersister.GetGroupChatRecordPage(timeScope, groupID, pageSize, pageIndex);
         }
+
+        public ChatRecordPage GetGroupNoticeRecordPage(ChatRecordTimeScope timeScope, string groupID, int pageSize, int pageIndex)
+        {
+            return this.dbPersister.GetGroupNoticeRecordPage(timeScope, groupID, pageSize, pageIndex);
+        }
+
+
+
+
         #endregion               
     }
 }

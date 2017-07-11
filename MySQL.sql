@@ -24,6 +24,7 @@ CREATE TABLE `ChatMessageRecord` (
   `SpeakerID` varchar(20) NOT NULL,
   `AudienceID` varchar(20) NOT NULL,
   `IsGroupChat` bit(20) NOT NULL,
+  `IsNotice` bit(20) NOT NULL,
   `Content` blob NOT NULL,
   `OccureTime` datetime NOT NULL,
   PRIMARY KEY (`AutoID`),

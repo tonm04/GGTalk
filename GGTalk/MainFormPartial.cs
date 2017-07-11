@@ -30,7 +30,7 @@ namespace GGTalk
                 byte[] bChatBoxContent = info;
                 if (bChatBoxContent != null)
                 {
-                    ChatMessageRecord record = new ChatMessageRecord(sourceUserID, this.rapidPassiveEngine.CurrentUserID, bChatBoxContent, false);
+                    ChatMessageRecord record = new ChatMessageRecord(sourceUserID, this.rapidPassiveEngine.CurrentUserID, bChatBoxContent, false, false);
                     GlobalResourceManager.ChatMessageRecordPersister.InsertChatMessageRecord(record);
                 }
 
@@ -89,7 +89,7 @@ namespace GGTalk
                             decrypted = GlobalResourceManager.Des3Encryption.Decrypt(bChatBoxContent);
                         }
 
-                        ChatMessageRecord record = new ChatMessageRecord(sourceUserID, this.rapidPassiveEngine.CurrentUserID, decrypted, false);
+                        ChatMessageRecord record = new ChatMessageRecord(sourceUserID, this.rapidPassiveEngine.CurrentUserID, decrypted, false, false);
                         GlobalResourceManager.ChatMessageRecordPersister.InsertChatMessageRecord(record);
                         ChatBoxContent content = CompactPropertySerializer.Default.Deserialize<ChatBoxContent>(decrypted, 0);
                         tag = new Parameter<ChatBoxContent, DateTime>(content, msg.Time);
@@ -281,7 +281,7 @@ namespace GGTalk
                         }
 
                         this.notifyIcon.PushGroupMessage(broadcasterID, groupID, broadcastType, decrypted);
-                        ChatMessageRecord record = new ChatMessageRecord(broadcasterID, groupID, decrypted, true);
+                        ChatMessageRecord record = new ChatMessageRecord(broadcasterID, groupID, decrypted, true, false);
                         GlobalResourceManager.ChatMessageRecordPersister.InsertChatMessageRecord(record);
                         return;
                     }
@@ -358,9 +358,33 @@ namespace GGTalk
                     }
 
 
+                    if (broadcastType == BroadcastTypes.BroadcastNotice)
+                    {
+                        string userID = System.Text.Encoding.UTF8.GetString(content).Split('|')[0];
+                        string Content = System.Text.Encoding.UTF8.GetString(content).Split('|')[1];
+                        //this.globalUserCache.OnSomeoneAddManagerGroup(groupID, userID);
+                        //return;
 
 
 
+
+
+                        GGGroup group = this.globalUserCache.GetGroup(groupID);
+
+                        byte[] decrypted = System.Text.Encoding.UTF8.GetBytes(Content);
+                        if (GlobalResourceManager.Des3Encryption != null)
+                        {
+                            decrypted = GlobalResourceManager.Des3Encryption.Decrypt(content);
+                        }
+
+                        this.notifyIcon.PushGroupMessage(userID, groupID, broadcastType, decrypted);
+                        ChatMessageRecord record = new ChatMessageRecord(userID, groupID, decrypted, true, true);
+                        GlobalResourceManager.ChatMessageRecordPersister.InsertChatMessageRecord(record);
+
+                        // this.globalUserCache.OnSomeoneRemoveManagerGroup(groupID, broadcasterID);
+
+                        return;
+                    }
 
                 }
                 catch (Exception ee)

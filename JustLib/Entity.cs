@@ -103,6 +103,7 @@ namespace JustLib
         SomeoneAdd,
         SomeoneAddManagers,
         SomeoneRemoveManagers,
+        BroadcastNotice
 
     }
 

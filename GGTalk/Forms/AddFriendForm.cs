@@ -99,7 +99,11 @@ namespace GGTalk
                 MessageBoxEx.Show("添加好友失败！" + ee.Message);
                 this.DialogResult = System.Windows.Forms.DialogResult.None;
             }
-        }      
-         
+        }
+
+        private void AddFriendForm_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

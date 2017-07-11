@@ -253,6 +253,24 @@ namespace GGTalk.Server
 
 
 
+            if (informationType == InformationTypes.BroadcastNotice)
+            {
+
+                string groupID = System.Text.Encoding.UTF8.GetString(info).Split('|')[0];
+                string UserID = System.Text.Encoding.UTF8.GetString(info).Split('|')[1];
+                string content = System.Text.Encoding.UTF8.GetString(info).Split('|')[2];
+                this.globalCache.StoreGroupNoticeRecord(groupID, UserID, System.Text.Encoding.UTF8.GetBytes(content));
+
+             //   this.globalCache.StoreGroupChatRecord(groupID, broadcasterID, broadcastContent);
+
+                this.rapidServerEngine.ContactsController.Broadcast(groupID, BroadcastTypes.BroadcastNotice, System.Text.Encoding.UTF8.GetBytes(UserID + "|" + content), null, ESFramework.ActionTypeOnChannelIsBusy.Continue);
+
+                return;
+            }
+
+
+
+
 
 
             if (informationType == InformationTypes.DeleteGroup)

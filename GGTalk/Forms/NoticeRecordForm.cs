@@ -18,28 +18,34 @@ using JustLib;
 using JustLib.Controls;
 using JustLib.Records;
 using ESPlus.Serialization;
+using System.Threading;
 
 namespace GGTalk
 {
-    public interface IUserNameGetter
-    {
-        string GetUserName(string userID);
-    }
+    //public interface IUserNameGetter
+    //{
+    //    string GetUserName(string userID);
+    //}
 
-    public partial class ChatRecordForm : BaseForm
+    public partial class NoticeRecordForm : BaseForm
     {
+
+
         private IChatRecordPersister remotePersister;
         private IChatRecordPersister localPersister;
         private int totalPageCount = 1;
         private int currentPageIndex = -1;
-        private int pageSize = 25; 
-        private Parameter<string,string> my; //ID - Name
+        private int pageSize = 25;
+        private Parameter<string, string> my; //ID - Name
         private Parameter<string, string> friend;
         private Parameter<string, string> group;
         private bool isGroupChat = false;
         private IUserNameGetter userNameGetter;
 
-        public ChatRecordForm(IChatRecordPersister remote, IChatRecordPersister local, Parameter<string, string> _my, Parameter<string, string> _friend)
+        private IRapidPassiveEngine rapidPassiveEngine;
+        private IGroup ggSupporter;
+
+        public NoticeRecordForm(IChatRecordPersister remote, IChatRecordPersister local, Parameter<string, string> _my, Parameter<string, string> _friend)
         {
             InitializeComponent();
 
@@ -47,12 +53,12 @@ namespace GGTalk
             this.isGroupChat = false;
             this.my = _my;
             this.friend = _friend;
-            this.Text += " - " + this.friend.Arg2;            
+            this.Text += " - " + this.friend.Arg2;
             this.remotePersister = remote;
             this.localPersister = local;
         }
 
-        public ChatRecordForm(IChatRecordPersister remote,IChatRecordPersister local, Parameter<string, string> gr, Parameter<string, string> _my, IUserNameGetter getter)
+        public NoticeRecordForm(IChatRecordPersister remote, IChatRecordPersister local, Parameter<string, string> gr, Parameter<string, string> _my, IUserNameGetter getter, IRapidPassiveEngine engine, IGroup supporter)
         {
             InitializeComponent();
 
@@ -61,9 +67,11 @@ namespace GGTalk
             this.group = gr;
             this.my = _my;
             this.userNameGetter = getter;
-            this.Text = "群消息记录 - " + gr.Arg2;
+            this.Text = "群公告记录 - " + gr.Arg2;
             this.remotePersister = remote;
             this.localPersister = local;
+            this.rapidPassiveEngine = engine;
+            this.ggSupporter = supporter;
         }
 
         #region ServerRecordEnabled
@@ -79,7 +87,7 @@ namespace GGTalk
                 this.skinRadioButton_Server.Visible = false;
                 this.skinRadioButton1.Visible = false;
             }
-        } 
+        }
         #endregion
 
         private IChatRecordPersister CurrentPersister
@@ -97,7 +105,7 @@ namespace GGTalk
 
         private void MessageRecordForm_Shown(object sender, EventArgs e)
         {
-            this.skinComboBox1.SelectedIndex = 0;            
+            this.skinComboBox1.SelectedIndex = 0;
         }
 
         private void ShowRecord(int pageIndex)
@@ -105,7 +113,7 @@ namespace GGTalk
             this.ShowRecord(pageIndex, true);
         }
 
-        private void ShowRecord(int pageIndex ,bool allowCache)
+        private void ShowRecord(int pageIndex, bool allowCache)
         {
             if (this.remotePersister == null) //还未完成构造
             {
@@ -134,7 +142,7 @@ namespace GGTalk
             try
             {
                 ChatRecordTimeScope timeScope = ChatRecordTimeScope.All;
-                DateTime now = DateTime.Now ;
+                DateTime now = DateTime.Now;
                 if (this.skinComboBox1.SelectedIndex == 0) //一周
                 {
                     timeScope = ChatRecordTimeScope.RecentWeek;
@@ -151,21 +159,21 @@ namespace GGTalk
                 {
                 }
 
-                
+
                 ChatRecordPage page = null;
                 if (this.isGroupChat)
                 {
-                    page = this.CurrentPersister.GetGroupChatRecordPage(timeScope, this.group.Arg1, this.pageSize, pageIndex);
+                    page = this.CurrentPersister.GetGroupNoticeRecordPage(timeScope, this.group.Arg1, this.pageSize, pageIndex);
                 }
                 else
                 {
                     page = this.CurrentPersister.GetChatRecordPage(timeScope, my.Arg1, friend.Arg1, this.pageSize, pageIndex);
                 }
-                this.chatBox_history.Clear(); 
+                this.chatBox_history.Clear();
 
                 if (page == null || page.Content.Count == 0)
                 {
-                    MessageBoxEx.Show("没有消息记录！");                   
+                    MessageBoxEx.Show("没有消息记录！");
                     return;
                 }
 
@@ -183,22 +191,15 @@ namespace GGTalk
                         }
                     }
 
-                // ChatBoxContent content = CompactPropertySerializer.Default.Deserialize<ChatBoxContent>(decrypted, 0);
+                    // ChatBoxContent content = CompactPropertySerializer.Default.Deserialize<ChatBoxContent>(decrypted, 0);
 
-                ChatBoxContent content = null;
-
-
-
-                if (content == null)
+                    ChatBoxContent content = null;
+                    if (content == null)
                     {
                         content = new ChatBoxContent();
                         content.Text = System.Text.Encoding.UTF8.GetString(decrypted);
 
                     }
-
-
-
-
 
                     if (this.isGroupChat)
                     {
@@ -208,7 +209,7 @@ namespace GGTalk
                         }
                         else
                         {
-                            string name = this.userNameGetter.GetUserName(record.SpeakerID) ?? record.SpeakerID;                            
+                            string name = this.userNameGetter.GetUserName(record.SpeakerID) ?? record.SpeakerID;
                             this.AppendChatBoxContent(record.OccureTime, string.Format("{0}({1})", name, record.SpeakerID), content, Color.Blue);
                         }
                     }
@@ -223,7 +224,7 @@ namespace GGTalk
                             this.AppendChatBoxContent(record.OccureTime, this.friend.Arg2, content, Color.Blue);
                         }
                     }
-                    
+
                 }
 
                 this.chatBox_history.SelectionStart = 0;
@@ -237,7 +238,7 @@ namespace GGTalk
                 this.totalPageCount = pageCount;
                 this.toolStripLabel_totalCount.Text = string.Format("/ {0}页", this.totalPageCount);
                 this.toolStripTextBox_pageIndex.Focus();
-        }
+            }
             catch (Exception ee)
             {
                 MessageBoxEx.Show(ee.Message);
@@ -246,7 +247,7 @@ namespace GGTalk
             {
                 this.Cursor = Cursors.Default;
             }
-}
+        }
 
         #region AppendMessage
         private void AppendChatBoxContent(DateTime showTime, string userName, ChatBoxContent content, Color color)
@@ -264,7 +265,7 @@ namespace GGTalk
         private void skinButton1_Click(object sender, EventArgs e)
         {
             this.ShowRecord(0);
-        }       
+        }
 
         private void skinButton_last_Click(object sender, EventArgs e)
         {
@@ -279,9 +280,9 @@ namespace GGTalk
         private void skinButton_next_Click(object sender, EventArgs e)
         {
             this.ShowRecord(this.currentPageIndex + 1);
-        }       
+        }
 
-        
+
 
         private void skinRadioButton1_CheckedChanged(object sender, EventArgs e)
         {
@@ -306,6 +307,39 @@ namespace GGTalk
         private void skinComboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             this.ShowRecord(int.MaxValue, false);
-        }      
+        }
+
+        private void btnClose_Click(object sender, EventArgs e)
+        {
+            AddNoticeForm form = new AddNoticeForm(this.rapidPassiveEngine, this.ggSupporter);
+            form.ShowDialog();
+            if (form.DialogResult == DialogResult.OK)
+            {
+                Thread.Sleep(1000);
+                this.ShowRecord(int.MaxValue, false);
+
+            }
+        }
+
+        private void NoticeRecordForm_Load(object sender, EventArgs e)
+        {
+
+            if (ggSupporter.CreatorID == this.my.Arg1 || ggSupporter.ManagerList.Contains(this.my.Arg1))
+
+            {
+                btnClose.Visible = true;
+
+
+            }
+            else
+            {
+                btnClose.Visible = false;
+
+
+            }
+
+
+
+        }
     }
 }

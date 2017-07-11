@@ -888,7 +888,7 @@ namespace GGTalk
                 }
 
                 this.AppendChatBoxContent(this.mine.Name, null, content, Color.SeaGreen, followingWords);
-                ChatMessageRecord record = new ChatMessageRecord(this.mine.UserID, this.currentFriend.UserID, buff, false);
+                ChatMessageRecord record = new ChatMessageRecord(this.mine.UserID, this.currentFriend.UserID, buff, false, false);
                 GlobalResourceManager.ChatMessageRecordPersister.InsertChatMessageRecord(record);
 
                 //清空输入框

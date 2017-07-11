@@ -54,6 +54,7 @@ namespace GGTalk
             this.请求远程协助ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.桌面共享指定区域ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.btn_adduser = new System.Windows.Forms.ToolStripButton();
+            this.btn_notice = new System.Windows.Forms.ToolStripButton();
             this.linkLabel_softName = new System.Windows.Forms.LinkLabel();
             this.pnlTx = new CCWin.SkinControl.SkinPanel();
             this.panelFriendHeadImage = new CCWin.SkinControl.SkinPanel();
@@ -208,7 +209,8 @@ namespace GGTalk
             this.ToolFile,
             this.toolStripButton4,
             this.toolStripSplitButton2,
-            this.btn_adduser});
+            this.btn_adduser,
+            this.btn_notice});
             this.skinToolStrip2.Location = new System.Drawing.Point(1, 53);
             this.skinToolStrip2.Name = "skinToolStrip2";
             this.skinToolStrip2.RadiusStyle = CCWin.SkinClass.RoundStyle.All;
@@ -353,6 +355,16 @@ namespace GGTalk
             this.btn_adduser.Size = new System.Drawing.Size(23, 30);
             this.btn_adduser.Text = "添加群成员";
             this.btn_adduser.Click += new System.EventHandler(this.btn_adduser_Click);
+            // 
+            // btn_notice
+            // 
+            this.btn_notice.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btn_notice.Image = ((System.Drawing.Image)(resources.GetObject("btn_notice.Image")));
+            this.btn_notice.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btn_notice.Name = "btn_notice";
+            this.btn_notice.Size = new System.Drawing.Size(23, 30);
+            this.btn_notice.Text = "群公告";
+            this.btn_notice.Click += new System.EventHandler(this.btn_notice_Click);
             // 
             // linkLabel_softName
             // 
@@ -712,5 +724,6 @@ namespace GGTalk
         private System.Windows.Forms.ToolStripMenuItem 请求远程协助ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 桌面共享指定区域ToolStripMenuItem;
         private System.Windows.Forms.ToolStripButton btn_adduser;
+        private System.Windows.Forms.ToolStripButton btn_notice;
     }
 }
