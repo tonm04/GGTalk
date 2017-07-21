@@ -16,6 +16,12 @@ namespace GGTalk.Server
         private IDBPersister dbPersister;
         private ObjectManager<string, GGUser> userCache = new ObjectManager<string, GGUser>(); // key:用户ID 。 Value：用户信息
         private ObjectManager<string, GGGroup> groupCache = new ObjectManager<string, GGGroup>();  // key:组ID 。 Value：Group信息
+
+        private ObjectManager<string, List<GroupFile>> groupFileCache = new ObjectManager<string, List<GroupFile>>();  // key:组ID 。 Value：Group信息
+
+
+
+
         private ObjectManager<string, List<OfflineMessage>> offlineMessageTable = new ObjectManager<string, List<OfflineMessage>>();//key:用户ID 。 
         private ObjectManager<string, List<OfflineFileItem>> offlineFileTable = new ObjectManager<string, List<OfflineFileItem>>();//key:用户ID 。 
 
@@ -75,6 +81,27 @@ namespace GGTalk.Server
             this.userCache.Add(user.UserID, user);
             this.dbPersister.UpdateUser(user);
         }
+
+
+        public void UpdateGroup(GGGroup group)
+        {
+            GGGroup old = this.groupCache.Get(group.ID);
+            if (old == null)
+            {
+                return;
+            }
+
+            //user.Friends = old.Friends;       //0922 
+            //user.Groups = old.Groups;  //0922  
+
+            group.Version = old.Version + 1;
+            this.groupCache.Add(group.ID, group);
+
+            this.dbPersister.UpdateGroup(group);
+        }
+
+
+
 
         /// <summary>
         /// 目标帐号是否已经存在？
@@ -236,6 +263,33 @@ namespace GGTalk.Server
             return groups;
         }
 
+
+        public List<GroupFile> GetAllGroupFile(string groupID)
+        {
+
+
+            if (this.groupFileCache.Contains(groupID))
+
+            { return this.groupFileCache.Get(groupID); }
+            else
+            {
+
+                return null;
+            }
+
+
+
+
+
+
+
+        }
+
+
+
+
+
+
         public Dictionary<string, int> GetMyGroupVersions(string userID)
         {
             Dictionary<string, int> dic = new Dictionary<string, int>();
@@ -284,6 +338,64 @@ namespace GGTalk.Server
             return CreateGroupResult.Succeed;
         }
 
+
+
+
+        /// <summary>
+        /// 创建群组文件
+        /// </summary>       
+        public SendGroupFileResult SendGroupFile(string SID, string FileName, long FileLength, string SenderID, string SenderName, string SendDate, string GroupID)
+        {
+            GroupFile groupfile = new GroupFile();
+            groupfile.SID = SID;
+            groupfile.FileName = FileName;
+            groupfile.FileLength = FileLength;
+            groupfile.SenderID = SenderID;
+            groupfile.SenderName = SenderName;
+            groupfile.SendDate = SendDate;
+            groupfile.GroupID = GroupID;
+
+
+            List<GroupFile> file = new List<GroupFile>();
+            file.Add(groupfile);
+            if (!this.groupFileCache.Contains(GroupID))
+
+            {
+                this.groupFileCache.Add(GroupID, file);
+
+            }
+            else
+            {
+                this.groupFileCache.Get(GroupID).Add(groupfile);
+
+            }
+            this.dbPersister.InsertGroupFile(groupfile);
+            return SendGroupFileResult.Succeed;
+        }
+
+
+
+        /// <summary>
+        /// 删除群文件
+        /// </summary>       
+        public DeleteGroupFileResult DeleteGroupFile(string fileID, string groupID)
+        {
+            if (!this.groupFileCache.Contains(groupID))
+
+            {
+                return 0;
+
+            }
+            GroupFile file = this.groupFileCache.Get(groupID).Find((GroupFile s) => s.SID == fileID);
+             this.groupFileCache.Get(groupID).Remove(file);
+             this.dbPersister.DeleteGroupFile(fileID);
+            return DeleteGroupFileResult.Succeed;
+        }
+
+
+
+
+
         /// <summary>
         /// 退出组
         /// </summary>       
@@ -316,7 +428,7 @@ namespace GGTalk.Server
 
             // GGUser user = this.userCache.Get(userID);
             // user.QuitGroup(groupID);
-              this.dbPersister.ChangeUserGroups(userID, groupID);
+            this.dbPersister.ChangeUserGroups(userID, groupID);
         }
 
         /// <summary>
@@ -349,8 +461,8 @@ namespace GGTalk.Server
             }
             this.dbPersister.UpdateGroup(group);
 
-             GGUser user = this.userCache.Get(userID);
-             user.QuitGroup(groupID);
+            GGUser user = this.userCache.Get(userID);
+            user.QuitGroup(groupID);
             this.dbPersister.ChangeUserGroups(userID, groupID);
         }
 
@@ -471,7 +583,7 @@ namespace GGTalk.Server
 
 
 
-           // GGUser user = this.userCache.Get(userID);
+            // GGUser user = this.userCache.Get(userID);
             if (!user.GroupList.Contains(groupID))
             {
                 user.JoinGroup(groupID);

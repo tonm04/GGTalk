@@ -37,6 +37,22 @@ namespace GGTalk
         GroupExisted,
     }
 
+
+    public enum SendGroupFileResult
+    {
+        Succeed = 0,
+        GroupFileExisted,
+    }
+
+
+    public enum DeleteGroupFileResult
+    {
+        Succeed = 0,
+        GroupFileExisted,
+    }
+
+
+
     public enum ChangePasswordResult
     {
         Succeed = 0,

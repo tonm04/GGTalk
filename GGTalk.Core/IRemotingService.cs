@@ -9,9 +9,8 @@ namespace GGTalk
     /// <summary>
     /// 用于提供注册服务的Remoting接口。
     /// </summary>
-    public interface IRemotingService :IChatRecordPersister
-    {
-        RegisterResult Register(GGUser user); 
+    public interface IRemotingService :IChatRecordPersister,IGroupFilePersister
+    {RegisterResult Register(GGUser user); 
 
         /// <summary>
         /// 根据ID或Name搜索用户【完全匹配】。
@@ -22,6 +21,15 @@ namespace GGTalk
         /// 发送系统通知给所有在线用户。
         /// </summary>      
         void SendSystemNotify(string title, string content);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="groupID"></param>
+        /// <returns></returns>
+        List<GroupFile> GetAllGroupFile(string groupID);
+
+
+
     }
 
     public enum RegisterResult

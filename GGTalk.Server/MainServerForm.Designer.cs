@@ -186,7 +186,7 @@
             // 
             this.toolStripStatusLabel_procotol.AutoSize = false;
             this.toolStripStatusLabel_procotol.Name = "toolStripStatusLabel_procotol";
-            this.toolStripStatusLabel_procotol.Size = new System.Drawing.Size(115, 17);
+            this.toolStripStatusLabel_procotol.Size = new System.Drawing.Size(146, 17);
             this.toolStripStatusLabel_procotol.Spring = true;
             this.toolStripStatusLabel_procotol.Text = "使用TCP协议";
             this.toolStripStatusLabel_procotol.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -249,6 +249,7 @@
             this.Name = "MainServerForm";
             this.Text = "ESFramework Rapid 引擎服务器";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
+            this.Load += new System.EventHandler(this.MainServerForm_Load);
             this.contextMenuStrip1.ResumeLayout(false);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();

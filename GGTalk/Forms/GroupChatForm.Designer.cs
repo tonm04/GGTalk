@@ -55,6 +55,7 @@ namespace GGTalk
             this.桌面共享指定区域ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.btn_adduser = new System.Windows.Forms.ToolStripButton();
             this.btn_notice = new System.Windows.Forms.ToolStripButton();
+            this.btn_file = new System.Windows.Forms.ToolStripButton();
             this.linkLabel_softName = new System.Windows.Forms.LinkLabel();
             this.pnlTx = new CCWin.SkinControl.SkinPanel();
             this.panelFriendHeadImage = new CCWin.SkinControl.SkinPanel();
@@ -210,7 +211,8 @@ namespace GGTalk
             this.toolStripButton4,
             this.toolStripSplitButton2,
             this.btn_adduser,
-            this.btn_notice});
+            this.btn_notice,
+            this.btn_file});
             this.skinToolStrip2.Location = new System.Drawing.Point(1, 53);
             this.skinToolStrip2.Name = "skinToolStrip2";
             this.skinToolStrip2.RadiusStyle = CCWin.SkinClass.RoundStyle.All;
@@ -366,6 +368,16 @@ namespace GGTalk
             this.btn_notice.Text = "群公告";
             this.btn_notice.Click += new System.EventHandler(this.btn_notice_Click);
             // 
+            // btn_file
+            // 
+            this.btn_file.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btn_file.Image = global::GGTalk.Properties.Resources.file;
+            this.btn_file.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btn_file.Name = "btn_file";
+            this.btn_file.Size = new System.Drawing.Size(23, 30);
+            this.btn_file.Text = "群文件";
+            this.btn_file.Click += new System.EventHandler(this.btn_file_Click);
+            // 
             // linkLabel_softName
             // 
             this.linkLabel_softName.ActiveLinkColor = System.Drawing.Color.Black;
@@ -417,6 +429,9 @@ namespace GGTalk
             this.panelFriendHeadImage.Radius = 5;
             this.panelFriendHeadImage.Size = new System.Drawing.Size(40, 40);
             this.panelFriendHeadImage.TabIndex = 6;
+            this.panelFriendHeadImage.Click += new System.EventHandler(this.panelFriendHeadImage_Click);
+            this.panelFriendHeadImage.MouseEnter += new System.EventHandler(this.panelFriendHeadImage_MouseEnter);
+            this.panelFriendHeadImage.MouseLeave += new System.EventHandler(this.panelFriendHeadImage_MouseLeave);
             // 
             // labelGroupName
             // 
@@ -725,5 +740,6 @@ namespace GGTalk
         private System.Windows.Forms.ToolStripMenuItem 桌面共享指定区域ToolStripMenuItem;
         private System.Windows.Forms.ToolStripButton btn_adduser;
         private System.Windows.Forms.ToolStripButton btn_notice;
+        private System.Windows.Forms.ToolStripButton btn_file;
     }
 }

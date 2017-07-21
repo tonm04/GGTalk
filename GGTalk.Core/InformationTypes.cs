@@ -238,7 +238,16 @@ namespace GGTalk
         /// 解散组（C->S）
         /// </summary>
         public const int DeleteGroup = 56;
+
+
+
+        /// <summary>
+        /// 修改群组资料（C->S）
+        /// </summary>
+        public const int UpdateGroupInfo = 57;
         #endregion
+
+
 
         #region FriendCatalog
         /// <summary>
@@ -319,6 +328,9 @@ namespace GGTalk
         /// </summary>
         public const int BroadcastNotice = 96;
 
+        public const int SendGroupFile = 97;
+        public const int DeleteGroupFile = 98;
+
 
 
 
@@ -372,7 +384,7 @@ namespace GGTalk
         /// 加入某人
         /// </summary>
         public const int SomeoneAddGroup = 8;
-      
+
 
         /// <summary>
         /// 设为管理员
@@ -387,6 +399,11 @@ namespace GGTalk
         /// 群公告
         /// </summary>
         public const int BroadcastNotice = 11;
+
+        /// <summary>
+        /// 群公告
+        /// </summary>
+        public const int SendGroupFile = 12;
 
 
 

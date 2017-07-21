@@ -16,29 +16,29 @@ namespace JustLib.Caches
     /// （1）当前登录用户的资料不缓存，每次登录从服务器获取最新。
     /// （2）当前登录用户修改个人资料时，服务器会将其Version增加1。如果仅仅是好友列表/所属组发生变化，则Version不会增加。
     /// </summary>
-    public abstract class BaseGlobalUserCache<TUser ,TGroup> where TUser : IUser where TGroup:IGroup
+    public abstract class BaseGlobalUserCache<TUser, TGroup> where TUser : IUser where TGroup : IGroup
     {
-        private string companyGroupID = ""; 
+        private string companyGroupID = "";
         private string persistenceFilePath = "";
-        private int pageSize4LoadFriends = 20;      
+        private int pageSize4LoadFriends = 20;
         private ObjectManager<string, TUser> userManager = new ObjectManager<string, TUser>(); //缓存用户资料
-        private ObjectManager<string, TGroup> groupManager = new ObjectManager<string, TGroup>();     
+        private ObjectManager<string, TGroup> groupManager = new ObjectManager<string, TGroup>();
         private UserLocalPersistence<TUser, TGroup> originUserLocalPersistence;
         private IAgileLogger logger;
 
         public event CbGeneric<TUser> FriendInfoChanged;
         public event CbGeneric<TUser> FriendAdded;
-        public event CbGeneric<TGroup, GroupChangedType ,string> GroupChanged; //group - type - userID      
-        public event CbGeneric<TUser> FriendStatusChanged;     
+        public event CbGeneric<TGroup, GroupChangedType, string> GroupChanged; //group - type - userID      
+        public event CbGeneric<TUser> FriendStatusChanged;
         public event CbGeneric<string> FriendRemoved;
-        public event CbGeneric FriendRTDataRefreshCompleted ;        
+        public event CbGeneric FriendRTDataRefreshCompleted;
 
         #region CurrentUser
         protected TUser currentUser;
         public TUser CurrentUser
         {
             get { return currentUser; }
-        } 
+        }
         #endregion
 
 #if Org
@@ -46,16 +46,16 @@ namespace JustLib.Caches
         protected abstract TGroup CreateCompanyGroup(List<string> members);       
 #endif
         protected abstract TUser DoGetUser(string userID);
-        protected abstract TGroup DoGetGroup(string groupID);       
+        protected abstract TGroup DoGetGroup(string groupID);
         protected abstract List<TGroup> DoGetMyGroups();
         protected abstract List<TGroup> DoGetSomeGroups(List<string> groupIDList);
         protected abstract ContactRTDatas DoGetContactsRTDatas();
         protected abstract List<TUser> DoGetSomeUsers(List<string> userIDList);
         protected abstract List<TUser> DoGetAllContacts(); //好友，包括组友 
-        
+
 
         #region Ctor
-        public virtual void Initialize(string curUserID, string persistencePath, string _companyGroupID ,IAgileLogger _logger)
+        public virtual void Initialize(string curUserID, string persistencePath, string _companyGroupID, IAgileLogger _logger)
         {
             this.GroupChanged += delegate { };
             this.FriendInfoChanged += delegate { };
@@ -63,18 +63,18 @@ namespace JustLib.Caches
             this.FriendRemoved += delegate { };
 
             this.FriendRTDataRefreshCompleted += new CbGeneric(GlobalUserCache_FriendRTDataRefreshCompleted);
-           
+
             this.companyGroupID = _companyGroupID;
             this.logger = _logger;
-            
+
             //自己的信息始终加载最新的           
             this.currentUser = this.DoGetUser(curUserID);
             this.userManager.Add(this.currentUser.ID, this.currentUser);
 
             this.persistenceFilePath = persistencePath;
             this.originUserLocalPersistence = UserLocalPersistence<TUser, TGroup>.Load(this.persistenceFilePath);//返回null，表示该登录帐号还没有任何缓存
-            if (this.originUserLocalPersistence != null && this.originUserLocalPersistence.FriendList != null) 
-            {               
+            if (this.originUserLocalPersistence != null && this.originUserLocalPersistence.FriendList != null)
+            {
                 foreach (TUser user in this.originUserLocalPersistence.FriendList)
                 {
                     if (user.ID == null)
@@ -90,12 +90,12 @@ namespace JustLib.Caches
 
                 foreach (TGroup group in this.originUserLocalPersistence.GroupList)
                 {
-                    if (this.currentUser.GroupList.Contains(group.ID)) 
+                    if (this.currentUser.GroupList.Contains(group.ID))
                     {
                         this.groupManager.Add(group.ID, group);
                     }
 
-                    #if Org
+#if Org
                     if (this.currentUser.IsInOrg)
                     {
                         if (this.IsCompanyGroupID(group.ID))
@@ -103,7 +103,7 @@ namespace JustLib.Caches
                             this.groupManager.Add(group.ID, group);
                         }
                     }
-                    #endif
+#endif
                 }
             }
         }
@@ -133,10 +133,10 @@ namespace JustLib.Caches
                 this.GroupChanged(companyGroup, GroupChangedType.MemberInfoChanged, this.currentUser.ID);
             }
 #endif
-           
+
             this.SaveUserLocalCache(null);
-        } 
-        #endregion        
+        }
+        #endregion
 
         #region UserLocalCache   
         public List<string> GetRecentList()
@@ -193,8 +193,8 @@ namespace JustLib.Caches
         {
             try
             {
-                List<string> tmpFriendList = this.currentUser.GetAllFriendList();    
-                ESBasic.Collections.SortedArray<string> allContacts = new ESBasic.Collections.SortedArray<string>(tmpFriendList);                
+                List<string> tmpFriendList = this.currentUser.GetAllFriendList();
+                ESBasic.Collections.SortedArray<string> allContacts = new ESBasic.Collections.SortedArray<string>(tmpFriendList);
                 List<TGroup> myGroups = this.DoGetMyGroups(); //如果开启的Org，则会有公司群，其包含了所有组织内用户
                 foreach (TGroup group in myGroups)
                 {
@@ -233,7 +233,7 @@ namespace JustLib.Caches
                     {
                         string[] ary = (i == pageCount - 1) ? new string[lastPageSize] : new string[this.pageSize4LoadFriends];
                         allContactList.CopyTo(i * this.pageSize4LoadFriends, ary, 0, ary.Length);
-                        List<string> tmp = new List<string>(ary);                        
+                        List<string> tmp = new List<string>(ary);
                         List<TUser> friends = this.DoGetSomeUsers(tmp);
                         foreach (TUser friend in friends)
                         {
@@ -264,13 +264,13 @@ namespace JustLib.Caches
         private void RefreshContactRTData(object state)
         {
             try
-            {               
+            {
                 ContactRTDatas contract = this.DoGetContactsRTDatas();
                 foreach (string userID in this.userManager.GetKeyList())
                 {
                     if (userID != this.currentUser.ID && !contract.UserStatusDictionary.ContainsKey(userID)) //最新的联系人中不包含缓存用户，则将之从缓存中删除。
                     {
-                        this.userManager.Remove(userID);                        
+                        this.userManager.Remove(userID);
                         if (this.FriendRemoved != null)
                         {
                             this.FriendRemoved(userID);
@@ -289,7 +289,7 @@ namespace JustLib.Caches
                     if (origin == null) //不存在于本地缓存中
                     {
                         TUser user = this.DoGetUser(pair.Key);
-                        this.userManager.Add(user.ID, user);                        
+                        this.userManager.Add(user.ID, user);
                         if (this.FriendInfoChanged != null)
                         {
                             this.FriendInfoChanged(user);
@@ -323,10 +323,13 @@ namespace JustLib.Caches
                     }
                 }
 
+
                 List<string> updateGroupList = new List<string>();
                 foreach (string groupID in this.currentUser.GroupList)
                 {
-                    TGroup group = this.groupManager.Get(groupID);
+                 TGroup group = this.groupManager.Get(groupID);
+
+                   // IGroup group = this.groupManager.Get(groupID);
                     if (group == null)
                     {
                         updateGroupList.Add(groupID);
@@ -337,12 +340,20 @@ namespace JustLib.Caches
                     {
                         if (contract.GroupVersionDictionary[groupID] != group.Version)
                         {
+
+                            if (this.GroupChanged != null)
+                            {
+                                this.GroupChanged(group, GroupChangedType.GroupInfoChanged, "");
+                            }
+
+
+
                             updateGroupList.Add(groupID);
                             continue;
                         }
                     }
                 }
-               
+
                 if (updateGroupList.Count > 0)
                 {
                     //加载组
@@ -398,7 +409,7 @@ namespace JustLib.Caches
         {
             TUser user = this.userManager.Get(userID);
             if (user == null)
-            {                
+            {
                 user = this.DoGetUser(userID);
                 if (user != null)
                 {
@@ -425,7 +436,7 @@ namespace JustLib.Caches
         /// 被别人添加为好友。
         /// </summary>        
         public void OnFriendAdded(TUser user)
-        {           
+        {
             this.userManager.Add(user.ID, user);
             if (this.FriendAdded != null)
             {
@@ -436,7 +447,7 @@ namespace JustLib.Caches
         public void AddOrUpdateUser(TUser user)
         {
             bool isNew = !this.userManager.Contains(user.ID);
-            this.userManager.Add(user.ID, user);   
+            this.userManager.Add(user.ID, user);
             if (this.FriendInfoChanged != null)
             {
                 this.FriendInfoChanged(user);
@@ -459,10 +470,10 @@ namespace JustLib.Caches
 #endif
 
         }
-        
+
         public void RemovedFriend(string friendID)
         {
-            bool inGroup = false ;
+            bool inGroup = false;
             foreach (TGroup group in this.groupManager.GetAll())
             {
                 if (group.MemberList.Contains(friendID))
@@ -502,7 +513,7 @@ namespace JustLib.Caches
         {
             TGroup group = this.groupManager.Get(groupID);
             if (group == null)
-            {             
+            {
                 group = this.DoGetGroup(groupID);
                 this.groupManager.Add(group.ID, group);
             }
@@ -560,6 +571,31 @@ namespace JustLib.Caches
             }
         }
 
+
+
+        public void UpdateGroup(TGroup group)
+        {
+            IGroup old = this.GetGroup(group.ID);
+            if (old == null)
+            {
+                return;
+            }
+
+            //old.Announce = group.Announce;
+            //   old.Name = group.Name;
+
+
+
+
+
+            this.groupManager.Add(group.ID, group);
+
+            if (this.GroupChanged != null)
+            {
+                this.GroupChanged(group, GroupChangedType.GroupInfoChanged, "");
+            }
+
+        }
         public void OnSomeoneAddGroup(string groupID, string userID)
         {
             TGroup group = this.groupManager.Get(groupID);
@@ -642,7 +678,7 @@ namespace JustLib.Caches
         public void OnSomeoneRemoveManagerGroup(string groupID, string userID)
         {
             TGroup group = this.groupManager.Get(groupID);
-            if (group == null  )
+            if (group == null)
             {
                 return;
             }

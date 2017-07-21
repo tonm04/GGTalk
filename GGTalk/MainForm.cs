@@ -33,7 +33,7 @@ namespace GGTalk
 {
     public partial class MainForm : BaseForm, IChatSupporter, ITwinkleNotifySupporter, IHeadImageGetter
     {
-        private bool initialized = false;       
+        private bool initialized = false;
         private UserStatus myStatus = UserStatus.OffLine; //用于断线重连       
         private IRapidPassiveEngine rapidPassiveEngine;
         private GlobalUserCache globalUserCache; //缓存用户资料
@@ -53,26 +53,26 @@ namespace GGTalk
             this.查找好友ToolStripMenuItem.Visible = true;
             this.头像显示ToolStripMenuItem.Visible = true;
 
-            UiSafeInvoker invoker = new UiSafeInvoker(this, true,true, GlobalResourceManager.Logger);
+            UiSafeInvoker invoker = new UiSafeInvoker(this, true, true, GlobalResourceManager.Logger);
             GlobalResourceManager.SetUiSafeInvoker(invoker);
 
             this.toolstripButton_mainMenu.Image = GlobalResourceManager.Png64;
 
             this.friendListBox1.AddCatalogClicked += new CbGeneric(friendListBox1_AddCatalogClicked);
             this.friendListBox1.ChangeCatalogNameClicked += new CbGeneric<string>(friendListBox1_ChangeCatalogNameClicked);
-            this.friendListBox1.UserDoubleClicked +=new CbGeneric<IUser>(friendListBox1_UserDoubleClicked);
+            this.friendListBox1.UserDoubleClicked += new CbGeneric<IUser>(friendListBox1_UserDoubleClicked);
             this.friendListBox1.RemoveUserClicked += new CbGeneric<IUser>(friendListBox1_RemoveUserClicked);
             this.friendListBox1.ChatRecordClicked += new CbGeneric<IUser>(friendListBox1_ChatRecordClicked);
             this.friendListBox1.CatalogAdded += new CbGeneric<string>(friendListBox1_CatalogAdded);
             this.friendListBox1.CatalogNameChanged += new CbGeneric<string, string, bool>(friendListBox1_CatalogNameChanged);
             this.friendListBox1.CatalogRemoved += new CbGeneric<string>(friendListBox1_CatalogRemoved);
-            this.friendListBox1.FriendCatalogMoved += new CbGeneric<string, string ,string >(friendListBox1_FriendCatalogMoved);
+            this.friendListBox1.FriendCatalogMoved += new CbGeneric<string, string, string>(friendListBox1_FriendCatalogMoved);
             this.recentListBox1.UnitDoubleClicked += new CbGeneric<string, bool>(recentListBox1_UserDoubleClicked);
-            this.recentListBox1.ChatRecordClicked += new CbGeneric<string, bool>(recentListBox1_ChatRecordClicked);            
+            this.recentListBox1.ChatRecordClicked += new CbGeneric<string, bool>(recentListBox1_ChatRecordClicked);
             this.groupListBox.GroupDoubleClicked += new CbGeneric<IGroup>(groupListBox_GroupDoubleClicked);
             this.groupListBox.DismissGroupClicked += new CbGeneric<IGroup>(groupListBox_DismissGroupClicked);
             this.groupListBox.QuitGroupClicked += new CbGeneric<IGroup>(groupListBox_QuitGroupClicked);
-            this.groupListBox.ChatRecordClicked += new CbGeneric<IGroup>(groupListBox_ChatRecordClicked);           
+            this.groupListBox.ChatRecordClicked += new CbGeneric<IGroup>(groupListBox_ChatRecordClicked);
         }
 
         void friendListBox1_AddCatalogClicked()
@@ -103,7 +103,7 @@ namespace GGTalk
         void groupListBox_QuitGroupClicked(IGroup group)
         {
             try
-            {  
+            {
                 if (!ESBasic.Helpers.WindowsHelper.ShowQuery(string.Format("您确定要退出群{0}({1})吗？", group.ID, group.Name)))
                 {
                     return;
@@ -131,7 +131,7 @@ namespace GGTalk
         }
 
         void groupListBox_DismissGroupClicked(IGroup group)
-        {   
+        {
             try
             {
                 if (group.CreatorID != this.globalUserCache.CurrentUser.UserID)
@@ -146,7 +146,7 @@ namespace GGTalk
                 }
 
                 this.rapidPassiveEngine.CustomizeOutter.SendCertainly(null, InformationTypes.DeleteGroup, System.Text.Encoding.UTF8.GetBytes(group.ID));
-                this.groupListBox.RemoveGroup(group.ID) ;
+                this.groupListBox.RemoveGroup(group.ID);
                 this.recentListBox1.RemoveUnit(group);
                 GroupChatForm form = this.groupChatFormManager.GetForm(group.ID);
                 if (form != null)
@@ -155,7 +155,7 @@ namespace GGTalk
                 }
                 this.globalUserCache.RemoveGroup(group.ID);
                 this.globalUserCache.CurrentUser.QuitGroup(group.ID);
-                MessageBoxEx.Show(string.Format("您已经解散群{0}({1})。", group.ID, group.Name));               
+                MessageBoxEx.Show(string.Format("您已经解散群{0}({1})。", group.ID, group.Name));
             }
             catch (Exception ee)
             {
@@ -166,7 +166,7 @@ namespace GGTalk
         void groupListBox_GroupDoubleClicked(IGroup group)
         {
             try
-            {               
+            {
                 GroupChatForm form = this.GetGroupChatForm(group.ID);
                 form.Show();
                 form.Focus();
@@ -177,7 +177,7 @@ namespace GGTalk
             }
         }
 
-        void recentListBox1_ChatRecordClicked(string unitID ,bool isGroup)
+        void recentListBox1_ChatRecordClicked(string unitID, bool isGroup)
         {
             ChatRecordForm form = null;
             if (isGroup)
@@ -228,7 +228,7 @@ namespace GGTalk
             this.globalUserCache.CurrentUser.ChangeFriendCatalogName(oldName, newName);
 
             ChangeCatalogContract contract = new ChangeCatalogContract(oldName, newName);
-            byte[] info = CompactPropertySerializer.Default.Serialize(contract);            
+            byte[] info = CompactPropertySerializer.Default.Serialize(contract);
             this.rapidPassiveEngine.CustomizeOutter.Send(InformationTypes.ChangeFriendCatalogName, info);
         }
 
@@ -288,7 +288,7 @@ namespace GGTalk
             catch (Exception ee)
             {
                 MessageBoxEx.Show("请求超时！" + ee.Message, GlobalResourceManager.SoftwareName);
-            } 
+            }
         }
         #endregion
 
@@ -302,16 +302,16 @@ namespace GGTalk
         /// </summary>
         public void Initialize(IRapidPassiveEngine engine, ChatListSubItem.UserStatus userStatus, Image stateImage)//, Image headImage, string nickName, ChatListSubItem.UserStatus userStatus, Image stateImage)
         {
-            GlobalResourceManager.PostInitialize(engine.CurrentUserID);            
+            GlobalResourceManager.PostInitialize(engine.CurrentUserID);
             this.Cursor = Cursors.WaitCursor;
 
-            this.toolTip1.SetToolTip(this.skinButton_headImage,"帐号：" + engine.CurrentUserID);
+            this.toolTip1.SetToolTip(this.skinButton_headImage, "帐号：" + engine.CurrentUserID);
             this.rapidPassiveEngine = engine;
-          
+
             this.globalUserCache = new GlobalUserCache(this.rapidPassiveEngine);
             this.globalUserCache.FriendInfoChanged += new CbGeneric<GGUser>(globalUserCache_FriendInfoChanged);
             this.globalUserCache.FriendStatusChanged += new CbGeneric<GGUser>(globalUserCache_FriendStatusChanged);
-            this.globalUserCache.GroupChanged += new CbGeneric<GGGroup ,GroupChangedType, string>(globalUserCache_GroupInfoChanged);
+            this.globalUserCache.GroupChanged += new CbGeneric<GGGroup, GroupChangedType, string>(globalUserCache_GroupInfoChanged);
             this.globalUserCache.FriendRTDataRefreshCompleted += new CbGeneric(globalUserCache_FriendRTDataRefreshCompleted);
             this.globalUserCache.FriendRemoved += new CbGeneric<string>(globalUserCache_FriendRemoved);
             this.globalUserCache.FriendAdded += new CbGeneric<GGUser>(globalUserCache_FriendAdded);
@@ -320,7 +320,7 @@ namespace GGTalk
             this.myStatus = this.globalUserCache.CurrentUser.UserStatus;
             this.labelSignature.Text = this.globalUserCache.CurrentUser.Signature;
             this.skinButton_headImage.Image = GlobalResourceManager.GetHeadImage(this.globalUserCache.CurrentUser);
-            this.labelName.Text = this.globalUserCache.CurrentUser.Name;           
+            this.labelName.Text = this.globalUserCache.CurrentUser.Name;
 
             skinButton_State.Image = stateImage;
             skinButton_State.Tag = userStatus;
@@ -331,9 +331,9 @@ namespace GGTalk
             this.Size = SystemSettings.Singleton.MainFormSize;
             this.Location = SystemSettings.Singleton.MainFormLocation;//new Point(Screen.PrimaryScreen.Bounds.Width - this.Width - 20, 40);
 
-            this.friendListBox1.Initialize(this.globalUserCache.CurrentUser, this, new UserInformationForm(new Point(this.Location.X-284 ,this.friendListBox1.Location.Y)));
-            this.groupListBox.Initialize(this.globalUserCache.CurrentUser ,GlobalConsts.CompanyGroupID);
-            this.recentListBox1.Initialize(this);            
+            this.friendListBox1.Initialize(this.globalUserCache.CurrentUser, this, new UserInformationForm(new Point(this.Location.X - 284, this.friendListBox1.Location.Y)));
+            this.groupListBox.Initialize(this.globalUserCache.CurrentUser, GlobalConsts.CompanyGroupID);
+            this.recentListBox1.Initialize(this);
 
             if (!SystemSettings.Singleton.ShowLargeIcon)
             {
@@ -345,29 +345,29 @@ namespace GGTalk
             //文件传送
             this.rapidPassiveEngine.FileOutter.FileRequestReceived += new CbFileRequestReceived(fileOutter_FileRequestReceived);
             this.rapidPassiveEngine.FileOutter.FileResponseReceived += new CbGeneric<TransferingProject, bool>(fileOutter_FileResponseReceived);
-            
+
             this.rapidPassiveEngine.ConnectionInterrupted += new CbGeneric(rapidPassiveEngine_ConnectionInterrupted);//预订断线事件
             this.rapidPassiveEngine.BasicOutter.BeingPushedOut += new CbGeneric(BasicOutter_BeingPushedOut);
             this.rapidPassiveEngine.RelogonCompleted += new CbGeneric<LogonResponse>(rapidPassiveEngine_RelogonCompleted);//预订重连成功事件  
             this.rapidPassiveEngine.MessageReceived += new CbGeneric<string, int, byte[], string>(rapidPassiveEngine_MessageReceived);
 
             //群、组
-            this.rapidPassiveEngine.ContactsOutter.BroadcastReceived += new CbGeneric<string, string, int, byte[] ,string>(ContactsOutter_BroadcastReceived);
+            this.rapidPassiveEngine.ContactsOutter.BroadcastReceived += new CbGeneric<string, string, int, byte[], string>(ContactsOutter_BroadcastReceived);
             this.rapidPassiveEngine.ContactsOutter.ContactsOffline += new CbGeneric<string>(ContactsOutter_ContactsOffline); //所有联系人的下线事件
 
             //网盘访问器 V2.0
-            this.nDiskOutter = new NDiskOutter(this.rapidPassiveEngine.FileOutter, this.rapidPassiveEngine.CustomizeOutter);              
-           
-            this.notifyIcon.UnhandleMessageOccured += new CbGeneric<UnhandleMessageType ,string>(notifyIcon_UnhandleMessageOccured);
-            this.notifyIcon.UnhandleMessageGone += new CbGeneric<UnhandleMessageType ,string>(notifyIcon_UnhandleMessageGone);
-            this.notifyIcon.Initialize(this ,this);
+            this.nDiskOutter = new NDiskOutter(this.rapidPassiveEngine.FileOutter, this.rapidPassiveEngine.CustomizeOutter);
+
+            this.notifyIcon.UnhandleMessageOccured += new CbGeneric<UnhandleMessageType, string>(notifyIcon_UnhandleMessageOccured);
+            this.notifyIcon.UnhandleMessageGone += new CbGeneric<UnhandleMessageType, string>(notifyIcon_UnhandleMessageGone);
+            this.notifyIcon.Initialize(this, this);
         }
 
         void notifyIcon_UnhandleMessageGone(UnhandleMessageType type, string friendOrGroupID)
         {
             if (type == UnhandleMessageType.Friend)
             {
-                this.friendListBox1.SetTwinkleState(friendOrGroupID, false); 
+                this.friendListBox1.SetTwinkleState(friendOrGroupID, false);
                 this.recentListBox1.SetTwinkleState(friendOrGroupID, false, false);
                 return;
             }
@@ -384,7 +384,7 @@ namespace GGTalk
         {
             if (type == UnhandleMessageType.Friend)
             {
-                this.friendListBox1.SetTwinkleState(friendOrGroupID, true); 
+                this.friendListBox1.SetTwinkleState(friendOrGroupID, true);
                 this.recentListBox1.SetTwinkleState(friendOrGroupID, false, true);
                 return;
             }
@@ -405,16 +405,16 @@ namespace GGTalk
             }
             else
             {
-                MessageBox.Show("已经在其它地方登录！",GlobalResourceManager.SoftwareName);
+                MessageBox.Show("已经在其它地方登录！", GlobalResourceManager.SoftwareName);
             }
-            
+
         }
 
         #region globalUserCache_FriendAdded
         void globalUserCache_FriendAdded(GGUser friend)
         {
-            this.friendListBox1.AddUser(friend); 
-        } 
+            this.friendListBox1.AddUser(friend);
+        }
         #endregion
 
         #region globalUserCache_FriendRemoved
@@ -423,13 +423,13 @@ namespace GGTalk
         /// </summary>       
         void globalUserCache_FriendRemoved(string friendID)
         {
-            GlobalResourceManager.UiSafeInvoker.ActionOnUI<string>(this.do_globalUserCache_FriendRemoved, friendID);            
+            GlobalResourceManager.UiSafeInvoker.ActionOnUI<string>(this.do_globalUserCache_FriendRemoved, friendID);
         }
 
         private void do_globalUserCache_FriendRemoved(string friendID)
         {
-            this.friendListBox1.RemoveUser(friendID); 
-            this.recentListBox1.RemoveUser(friendID);   
+            this.friendListBox1.RemoveUser(friendID);
+            this.recentListBox1.RemoveUser(friendID);
 
             ChatForm chatForm = this.chatFormManager.GetForm(friendID);
             if (chatForm != null)
@@ -448,7 +448,7 @@ namespace GGTalk
         void do_globalUserCache_GroupInfoChanged(GGGroup group, GroupChangedType type, string userID)
         {
             this.groupListBox.GroupInfoChanged(group, type, userID);
-            
+
             if (type == GroupChangedType.GroupDeleted)
             {
                 GroupChatForm form = this.groupChatFormManager.GetForm(group.ID);
@@ -464,6 +464,21 @@ namespace GGTalk
                 return;
             }
 
+
+
+            if (type == GroupChangedType.GroupInfoChanged)
+            {
+
+                //   this.groupListBox.RemoveGroup(group.ID);
+                // this.groupListBox.AddGroup(group);
+
+
+                return;
+            }
+
+
+
+
             GroupChatForm form2 = this.groupChatFormManager.GetForm(group.ID);
             if (form2 != null)
             {
@@ -475,7 +490,7 @@ namespace GGTalk
         #region globalUserCache_FriendRTDataRefreshCompleted
         void globalUserCache_FriendRTDataRefreshCompleted()
         {
-            GlobalResourceManager.UiSafeInvoker.ActionOnUI( this.do_globalUserCache_FriendRTDataRefreshCompleted);
+            GlobalResourceManager.UiSafeInvoker.ActionOnUI(this.do_globalUserCache_FriendRTDataRefreshCompleted);
         }
 
         void do_globalUserCache_FriendRTDataRefreshCompleted()
@@ -488,7 +503,7 @@ namespace GGTalk
             //正式通知好友，自己上线
             this.rapidPassiveEngine.CustomizeOutter.Send(InformationTypes.ChangeStatus, BitConverter.GetBytes((int)this.globalUserCache.CurrentUser.UserStatus));
 
-            GGUser mine = this.globalUserCache.GetUser(this.rapidPassiveEngine.CurrentUserID);            
+            GGUser mine = this.globalUserCache.GetUser(this.rapidPassiveEngine.CurrentUserID);
             this.InitializeFinished();
         }
 
@@ -503,19 +518,19 @@ namespace GGTalk
                 this.friendListBox1.SortAllUser();
                 this.Cursor = Cursors.Default;
             }
-        } 
+        }
         #endregion
 
         #region globalUserCache_FriendStatusChanged
         void globalUserCache_FriendStatusChanged(GGUser friend)
         {
-            GlobalResourceManager.UiSafeInvoker.ActionOnUI<GGUser>(this.do_globalUserCache_FriendStatusChanged, friend);               
+            GlobalResourceManager.UiSafeInvoker.ActionOnUI<GGUser>(this.do_globalUserCache_FriendStatusChanged, friend);
         }
 
         private void do_globalUserCache_FriendStatusChanged(GGUser friend)
         {
             this.friendListBox1.UserStatusChanged(friend);
-            this.recentListBox1.UserStatusChanged(friend);      
+            this.recentListBox1.UserStatusChanged(friend);
 
             ChatForm form = this.chatFormManager.GetForm(friend.UserID);
             if (form != null)
@@ -537,13 +552,13 @@ namespace GGTalk
         #region globalUserCache_FriendInfoChanged
         void globalUserCache_FriendInfoChanged(GGUser user)
         {
-            GlobalResourceManager.UiSafeInvoker.ActionOnUI<GGUser>(this.do_globalUserCache_FriendInfoChanged, user);          
+            GlobalResourceManager.UiSafeInvoker.ActionOnUI<GGUser>(this.do_globalUserCache_FriendInfoChanged, user);
         }
 
         void do_globalUserCache_FriendInfoChanged(GGUser user)
         {
             this.friendListBox1.UserInfoChanged(user);
-            this.recentListBox1.UserStatusChanged(user);           
+            this.recentListBox1.UserStatusChanged(user);
 
             ChatForm form = this.chatFormManager.GetForm(user.UserID);
             if (form != null)
@@ -565,7 +580,7 @@ namespace GGTalk
             try
             {
                 if (!this.DesignMode)
-                {                   
+                {
                     this.notifyIcon.Visible = true;
                 }
 
@@ -580,28 +595,35 @@ namespace GGTalk
                     GGUser friend = this.globalUserCache.GetUser(friendID);
                     if (friend != null)
                     {
-                        this.friendListBox1.AddUser(friend);                       
+                        this.friendListBox1.AddUser(friend);
                     }
                 }
                 this.friendListBox1.SortAllUser();
                 this.friendListBox1.ExpandRoot();
-
-                foreach (GGGroup group in this.globalUserCache.GetAllGroups()) //初期不包含 固定群
+                
+                foreach (string groupid in this.globalUserCache.CurrentUser.GroupList) //初期不包含 固定群
                 {
-                    this.groupListBox.AddGroup(group);
+
+                    
+                    GGGroup group1 = this.globalUserCache.GetGroup(groupid);
+                    if (group1 != null)
+                    { this.groupListBox.AddGroup(group1); }
+
+
                 }
 
+                 
                 //加载最近联系人
                 int insertIndex = 0;
                 foreach (string recentID in this.globalUserCache.GetRecentList())
                 {
                     Parameter<string, bool> para = RecentListBox.ParseIDFromRecentID(recentID);
-                    IUnit unit = this.globalUserCache.GetUnit(para.Arg1,para.Arg2);
+                    IUnit unit = this.globalUserCache.GetUnit(para.Arg1, para.Arg2);
                     if (unit == null)
                     {
                         continue;
                     }
-                    this.recentListBox1.AddRecentUnit(unit, insertIndex);                                
+                    this.recentListBox1.AddRecentUnit(unit, insertIndex);
                     ++insertIndex;
                 }
 
@@ -611,7 +633,7 @@ namespace GGTalk
             {
                 MessageBox.Show(ee.Message);
             }
-        }           
+        }
         #endregion
 
         #region MainForm_Shown
@@ -620,7 +642,7 @@ namespace GGTalk
             this.globalUserCache.StartRefreshFriendInfo();
             InformationForm frm = new InformationForm(this.rapidPassiveEngine.CurrentUserID, this.globalUserCache.CurrentUser.Name, GlobalResourceManager.GetHeadImage(this.globalUserCache.CurrentUser));
             frm.Show();
-        } 
+        }
         #endregion
 
         #region IChatSupporter
@@ -663,17 +685,17 @@ namespace GGTalk
             this.skinButton_headImage.Image = GlobalResourceManager.GetHeadImage(this.globalUserCache.CurrentUser);
             this.skinButton_State.Enabled = true;
             this.skinButton_State.Image = GlobalResourceManager.GetStatusImage(this.globalUserCache.CurrentUser.UserStatus);
-            this.skinButton_State.Tag = (int)this.globalUserCache.CurrentUser.UserStatus;            
+            this.skinButton_State.Tag = (int)this.globalUserCache.CurrentUser.UserStatus;
             this.globalUserCache.StartRefreshFriendInfo();
             this.notifyIcon.ChangeText(String.Format("{0}：{1}（{2}）\n状态：{3}", GlobalResourceManager.SoftwareName, this.globalUserCache.CurrentUser.Name, this.globalUserCache.CurrentUser.UserID, GlobalResourceManager.GetUserStatusName(this.globalUserCache.CurrentUser.UserStatus)));
             this.notifyIcon.ChangeMyStatus(this.globalUserCache.CurrentUser.UserStatus);
-        }       
+        }
         #endregion
 
         #region rapidPassiveEngine_ConnectionInterrupted
         void rapidPassiveEngine_ConnectionInterrupted()
         {
-            GlobalResourceManager.UiSafeInvoker.ActionOnUI( this.do_rapidPassiveEngine_ConnectionInterrupted);
+            GlobalResourceManager.UiSafeInvoker.ActionOnUI(this.do_rapidPassiveEngine_ConnectionInterrupted);
         }
 
         void do_rapidPassiveEngine_ConnectionInterrupted()
@@ -682,16 +704,16 @@ namespace GGTalk
             this.skinButton_headImage.Image = GlobalResourceManager.GetHeadImage(this.globalUserCache.CurrentUser);
             this.skinButton_State.Image = Properties.Resources.imoffline__2_;
             this.skinButton_State.Tag = ChatListSubItem.UserStatus.OffLine;
-            this.skinButton_State.Enabled = false;            
+            this.skinButton_State.Enabled = false;
             this.notifyIcon.ChangeText(String.Format("{0}：{1}（{2}）\n状态：离线，正在重连 . . .", GlobalResourceManager.SoftwareName, this.globalUserCache.CurrentUser.Name, this.globalUserCache.CurrentUser.UserID));
             this.notifyIcon.ChangeMyStatus(UserStatus.OffLine);
 
             foreach (GGUser friend in this.globalUserCache.GetAllUser())
             {
-                friend.UserStatus = UserStatus.OffLine;               
+                friend.UserStatus = UserStatus.OffLine;
             }
-            this.friendListBox1.SetAllUserOffline();            
-            this.recentListBox1.SetAllUserOffline();          
+            this.friendListBox1.SetAllUserOffline();
+            this.recentListBox1.SetAllUserOffline();
 
             foreach (ChatForm form in this.chatFormManager.GetAllForms())
             {
@@ -709,8 +731,8 @@ namespace GGTalk
         #region ContactsOutter_ContactsOffline
         void ContactsOutter_ContactsOffline(string userID)
         {
-            this.globalUserCache.ChangeUserStatus(userID, UserStatus.OffLine);           
-        }       
+            this.globalUserCache.ChangeUserStatus(userID, UserStatus.OffLine);
+        }
         #endregion
 
         #region 文件传输
@@ -721,7 +743,7 @@ namespace GGTalk
             if (para != null) //表明为网盘或远程磁盘
             {
                 return;
-            } 
+            }
 
             GlobalResourceManager.UiSafeInvoker.ActionOnUI<string, string, string, ulong, ResumedProjectItem, string>(this.do_fileOutter_FileRequestReceived, projectID, senderID, projectName, totalSize, resumedFileItem, comment);
         }
@@ -756,17 +778,17 @@ namespace GGTalk
             form.FlashChatWindow(true);
         }
         #endregion
-        #endregion      
-       
+        #endregion
+
         #region GetChatForm
         public ChatForm GetChatForm(string friendID)
         {
             ChatForm form = this.chatFormManager.GetForm(friendID);
             if (form == null)
-            {   
+            {
                 this.rapidPassiveEngine.P2PController.P2PConnectAsyn(friendID);//尝试P2P连接。
                 form = new ChatForm(this.rapidPassiveEngine, this.nDiskOutter, this.globalUserCache, this.globalUserCache.CurrentUser, this.globalUserCache.GetUser(friendID));
-                form.LastWordChanged += new CbGeneric<bool,string,LastWordsRecord>(form_LastWordChanged);
+                form.LastWordChanged += new CbGeneric<bool, string, LastWordsRecord>(form_LastWordChanged);
                 this.chatFormManager.Add(form);
                 form.TopMost = true;
                 form.Show();
@@ -787,9 +809,9 @@ namespace GGTalk
                 form.Focus();
             }
             return form;
-        }        
+        }
 
-        void form_LastWordChanged(bool isGroup ,string friendOrGroup, LastWordsRecord record)
+        void form_LastWordChanged(bool isGroup, string friendOrGroup, LastWordsRecord record)
         {
             IUnit unit = isGroup ? (IUnit)this.globalUserCache.GetGroup(friendOrGroup) : this.globalUserCache.GetUser(friendOrGroup);
             unit.Tag = record;
@@ -809,7 +831,7 @@ namespace GGTalk
             if (form == null)
             {
                 form = new GroupChatForm(this.rapidPassiveEngine, groupID, this.globalUserCache, this);
-                form.LastWordChanged +=new CbGeneric<bool,string,LastWordsRecord>(form_LastWordChanged);
+                form.LastWordChanged += new CbGeneric<bool, string, LastWordsRecord>(form_LastWordChanged);
                 this.groupChatFormManager.Add(form);
                 form.Show();
                 UnhandleGroupMessageBox cache = this.notifyIcon.PickoutGroupMessageCache(groupID);
@@ -832,14 +854,14 @@ namespace GGTalk
         public GroupChatForm GetExistedGroupChatForm(string groupID)
         {
             return this.groupChatFormManager.GetForm(groupID);
-        }        
-        #endregion      
+        }
+        #endregion
 
         //打开QQ主菜单
         private void toolQQMenu_Click(object sender, EventArgs e)
         {
-            this.skinContextMenuStrip_main.Show(skinToolStrip1, new Point(3, -2), ToolStripDropDownDirection.AboveRight);    
-        }        
+            this.skinContextMenuStrip_main.Show(skinToolStrip1, new Point(3, -2), ToolStripDropDownDirection.AboveRight);
+        }
 
         //选择状态
         private void skinButton_State_Click(object sender, EventArgs e)
@@ -847,22 +869,22 @@ namespace GGTalk
             this.skinContextMenuStrip_State.Show(skinButton_State, new Point(0, skinButton_State.Height), ToolStripDropDownDirection.Right);
         }
 
-        
+
         //状态选择项
         private void Item_Click(object sender, EventArgs e)
         {
             ToolStripMenuItem Item = (ToolStripMenuItem)sender;
             skinButton_State.Image = Item.Image;
             skinButton_State.Tag = Item.Tag;
-            this.globalUserCache.CurrentUser.UserStatus = (UserStatus)Convert.ToInt32(skinButton_State.Tag);      
+            this.globalUserCache.CurrentUser.UserStatus = (UserStatus)Convert.ToInt32(skinButton_State.Tag);
             this.myStatus = this.globalUserCache.CurrentUser.UserStatus;
 
-            this.skinButton_headImage.Image = GlobalResourceManager.GetHeadImage(this.globalUserCache.CurrentUser ,true);
+            this.skinButton_headImage.Image = GlobalResourceManager.GetHeadImage(this.globalUserCache.CurrentUser, true);
             this.notifyIcon.ChangeMyStatus(this.myStatus);
             this.rapidPassiveEngine.CustomizeOutter.Send(InformationTypes.ChangeStatus, BitConverter.GetBytes((int)this.globalUserCache.CurrentUser.UserStatus));
 
-            this.notifyIcon.ChangeText( String.Format("{0}：{1}（{2}）\n状态：{3}", GlobalResourceManager.SoftwareName, this.globalUserCache.CurrentUser.Name, this.globalUserCache.CurrentUser.UserID, GlobalResourceManager.GetUserStatusName(this.globalUserCache.CurrentUser.UserStatus)));
-        } 
+            this.notifyIcon.ChangeText(String.Format("{0}：{1}（{2}）\n状态：{3}", GlobalResourceManager.SoftwareName, this.globalUserCache.CurrentUser.Name, this.globalUserCache.CurrentUser.UserID, GlobalResourceManager.GetUserStatusName(this.globalUserCache.CurrentUser.UserStatus)));
+        }
 
         private void toolQQShow_Click(object sender, EventArgs e)
         {
@@ -909,63 +931,62 @@ namespace GGTalk
             this.rapidPassiveEngine.Close();
             Program.MultimediaManager.Dispose();
             this.Cursor = Cursors.Default;
-        } 
+        }
         #endregion
 
         //V2.0
         private void toolStripButton3_Click(object sender, EventArgs e)
         {
-            NDiskForm form = new NDiskForm(null, null, this.rapidPassiveEngine.FileOutter, this.nDiskOutter);            
+            NDiskForm form = new NDiskForm(null, null, this.rapidPassiveEngine.FileOutter, this.nDiskOutter);
             form.Show();
-        }              
-               
+        }
+
         private void toolStripSplitButton3_ButtonClick(object sender, EventArgs e)
         {
             this.recentListBox1.Visible = false;
             this.friendListBox1.Visible = false;
-            this.groupListBox.Visible = true;           
+            this.groupListBox.Visible = true;
         }
 
         private void toolStripSplitButton4_ButtonClick(object sender, EventArgs e)
         {
             this.recentListBox1.Visible = false;
             this.friendListBox1.Visible = true;
-            this.groupListBox.Visible = false;            
+            this.groupListBox.Visible = false;
         }
 
         private void toolStripSplitButton2_ButtonClick(object sender, EventArgs e)
         {
             this.recentListBox1.Visible = true;
             this.friendListBox1.Visible = false;
-            this.groupListBox.Visible = false;            
-        }       
+            this.groupListBox.Visible = false;
+        }
 
         private void toolStripButton1_Click(object sender, EventArgs e)
         {
             SystemSettingForm form = new SystemSettingForm();
             form.Show();
-        }       
+        }
 
         private void ToJoinGroup()
         {
-            JoinGroupForm form = new JoinGroupForm(this.rapidPassiveEngine,this);
+            JoinGroupForm form = new JoinGroupForm(this.rapidPassiveEngine, this);
             if (form.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 this.globalUserCache.CurrentUser.JoinGroup(form.GroupID);
                 GGGroup group = this.globalUserCache.GetGroup(form.GroupID);
-                this.groupListBox.AddGroup(group);            
-
+                this.groupListBox.AddGroup(group);
                 GroupChatForm groupChatForm = this.GetGroupChatForm(group.ID);
                 groupChatForm.AppendSysMessage("您已经成功加入群，可以开始聊天了...");
                 groupChatForm.Show();
                 groupChatForm.Focus();
             }
-        }      
+        }
 
         private void 清空会话列表ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             this.recentListBox1.Clear();
-        }       
+        }
 
         private void UpdateMyInfo()
         {
@@ -986,7 +1007,7 @@ namespace GGTalk
             foreach (ChatForm chatForm in this.chatFormManager.GetAllForms())
             {
                 chatForm.OnMyInfoChanged(this.globalUserCache.CurrentUser);
-            }           
+            }
         }
 
         private void skinPanel_HeadImage_MouseEnter(object sender, EventArgs e)
@@ -1030,7 +1051,7 @@ namespace GGTalk
             }
 
             this.UpdateMyInfo();
-        }       
+        }
 
         private void 加入群ToolStripMenuItem1_Click(object sender, EventArgs e)
         {
@@ -1051,7 +1072,7 @@ namespace GGTalk
 
             CreateGroupForm form = new CreateGroupForm(this.rapidPassiveEngine);
             if (form.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {               
+            {
                 GGGroup group = form.Group;
                 this.globalUserCache.CurrentUser.JoinGroup(group.ID);
                 this.globalUserCache.OnCreateGroup(group);
@@ -1062,7 +1083,7 @@ namespace GGTalk
                 groupChatForm.Show();
                 groupChatForm.Focus();
             }
-        }      
+        }
 
         private void skinButton_headImage_Click(object sender, EventArgs e)
         {
@@ -1099,7 +1120,7 @@ namespace GGTalk
         private void 小头像ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             this.friendListBox1.IconSizeMode = ChatListItemIcon.Small;
-            this.大头像ToolStripMenuItem.Checked = false;           
+            this.大头像ToolStripMenuItem.Checked = false;
             SystemSettings.Singleton.ShowLargeIcon = false;
             SystemSettings.Singleton.Save();
         }
@@ -1107,10 +1128,10 @@ namespace GGTalk
         private void 大头像ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             this.friendListBox1.IconSizeMode = ChatListItemIcon.Large;
-            this.小头像ToolStripMenuItem.Checked = false;          
+            this.小头像ToolStripMenuItem.Checked = false;
             SystemSettings.Singleton.ShowLargeIcon = true;
             SystemSettings.Singleton.Save();
-        }       
+        }
 
         private void FocusCurrent(object sender, EventArgs e)
         {
@@ -1134,9 +1155,9 @@ namespace GGTalk
             this.AddFriend(null);
         }
 
-        public void AddFriend(string friendID )
+        public void AddFriend(string friendID)
         {
-            AddFriendForm form = new AddFriendForm(this.rapidPassiveEngine, this, this.globalUserCache.CurrentUser ,friendID);
+            AddFriendForm form = new AddFriendForm(this.rapidPassiveEngine, this, this.globalUserCache.CurrentUser, friendID);
             if (form.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 this.globalUserCache.CurrentUser.AddFriend(form.FriendID, form.CatalogName);
@@ -1146,13 +1167,13 @@ namespace GGTalk
                 chatForm.AppendSysMessage("您已经成功将对方添加为好友，可以开始对话了...");
                 chatForm.Show();
                 chatForm.Focus();
-            } 
+            }
         }
 
         public List<ChatListSubItem> SearchChatListSubItem(string idOrName)
         {
             return this.friendListBox1.SearchChatListSubItem(idOrName);
-        }        
+        }
 
         #region ITwinkleNotifySupporter
         public string GetFriendName(string friendID)
@@ -1216,10 +1237,10 @@ namespace GGTalk
         IGroupChatForm ITwinkleNotifySupporter.GetExistedGroupChatForm(string groupID)
         {
             return this.GetExistedGroupChatForm(groupID);
-        } 
-        #endregion  
-        
-    
+        }
+        #endregion
+
+
         public Image GetHeadImage(IUser user)
         {
             return GlobalResourceManager.GetHeadImage((GGUser)user);
@@ -1234,7 +1255,7 @@ namespace GGTalk
         {
             SystemNotifySendForm form = new SystemNotifySendForm(this.rapidPassiveEngine);
             form.Show();
-        }    
+        }
     }
 
     public interface IChatSupporter

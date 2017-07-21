@@ -262,6 +262,15 @@ namespace GGTalk.Server
 
         }
 
+        public void InsertGroupFile(GroupFile t)
+        {
+
+        }
+        public void DeleteGroupFile(string SID)
+        {
+
+        }
+
         public void UpdateUser(GGUser t)
         {
 

@@ -80,6 +80,23 @@ namespace JustLib.UnitViews
                 return;
             }
 
+
+            if (type == GroupChangedType.GroupInfoChanged)
+            {
+                if (subItems == null || subItems.Length == 0)
+                {
+                    return;
+                }
+                this.chatListBox_group.GetSubItemsById(group.ID)[0].DisplayName = group.Name;
+
+
+                return;
+            }
+
+
+
+
+
             if (subItems == null || subItems.Length == 0)
             {
                 ChatListSubItem subItem = new ChatListSubItem(group.ID, "", group.Name, string.Format("{0}人", group.MemberList.Count), ChatListSubItem.UserStatus.Online, this.imageList1.Images[0]);

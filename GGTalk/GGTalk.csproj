@@ -102,11 +102,23 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Des3Encryption.cs" />
+    <Compile Include="Forms\AddFileForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\AddFileForm.Designer.cs">
+      <DependentUpon>AddFileForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\AddNoticeForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\AddNoticeForm.Designer.cs">
       <DependentUpon>AddNoticeForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\GroupFileForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\GroupFileForm.Designer.cs">
+      <DependentUpon>GroupFileForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\NoticeRecordForm.cs">
       <SubType>Form</SubType>
@@ -179,6 +191,12 @@
     </Compile>
     <Compile Include="Forms\SystemNotifyForm.Designer.cs">
       <DependentUpon>SystemNotifyForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\UpdateGroupInfoForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\UpdateGroupInfoForm.Designer.cs">
+      <DependentUpon>UpdateGroupInfoForm.cs</DependentUpon>
     </Compile>
     <Compile Include="GlobalUserCache.cs" />
     <Compile Include="Forms\RegisterForm.cs">
@@ -338,8 +356,15 @@
     </Compile>
     <Compile Include="SystemSettings.cs" />
     <Compile Include="VideoChatRecorder.cs" />
+    <EmbeddedResource Include="Forms\AddFileForm.resx">
+      <DependentUpon>AddFileForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\AddNoticeForm.resx">
       <DependentUpon>AddNoticeForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\GroupFileForm.resx">
+      <DependentUpon>GroupFileForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\NoticeRecordForm.resx">
       <DependentUpon>NoticeRecordForm.cs</DependentUpon>
@@ -373,6 +398,10 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\RegisterForm.resx">
       <DependentUpon>RegisterForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\UpdateGroupInfoForm.resx">
+      <DependentUpon>UpdateGroupInfoForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\UpdateUserInfoForm.resx">
@@ -500,6 +529,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="app.ico" />
+    <None Include="Resources\file.png" />
     <None Include="Resources\Add_User.png" />
   </ItemGroup>
   <ItemGroup>

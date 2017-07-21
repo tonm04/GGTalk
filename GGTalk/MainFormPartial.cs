@@ -140,6 +140,15 @@ namespace GGTalk
                         return;
                     }
 
+
+                    if (informationType == InformationTypes.UpdateGroupInfo)
+                    {
+                        GGGroup group = ESPlus.Serialization.CompactPropertySerializer.Default.Deserialize<GGGroup>(info, 0);
+                        this.globalUserCache.UpdateGroup(group);
+                          
+
+                        return;
+                    }
                     if (informationType == InformationTypes.UserStatusChanged)
                     {
                         UserStatusChangedContract contract = ESPlus.Serialization.CompactPropertySerializer.Default.Deserialize<UserStatusChangedContract>(info, 0);
@@ -168,8 +177,6 @@ namespace GGTalk
                         //this.globalUserCache.AddOrUpdateUser(user);
                         string groupID = System.Text.Encoding.UTF8.GetString(info).Split('|')[0];
                         string UserID = System.Text.Encoding.UTF8.GetString(info).Split('|')[1];
-
-
                         this.groupListBox.RemoveGroup(groupID);
                         this.recentListBox1.RemoveUnit(this.globalUserCache.GetGroup(groupID));
                         GroupChatForm form = this.groupChatFormManager.GetForm(groupID);
@@ -364,10 +371,6 @@ namespace GGTalk
                         string Content = System.Text.Encoding.UTF8.GetString(content).Split('|')[1];
                         //this.globalUserCache.OnSomeoneAddManagerGroup(groupID, userID);
                         //return;
-
-
-
-
 
                         GGGroup group = this.globalUserCache.GetGroup(groupID);
 

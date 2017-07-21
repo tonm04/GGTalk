@@ -43,6 +43,34 @@ namespace GGTalk
         public string Announce { get; set; }
     }
 
+    public class SendGroupFileContract
+    {
+        public SendGroupFileContract() { }
+        public SendGroupFileContract(string sid, string filename, long filelength, string senderid, string sendername, string senddate, string groupid)
+        {
+            this.SID = sid;
+            this.FileName = filename;
+            this.FileLength = filelength;
+
+            SenderID = senderid;
+            SenderName = sendername;
+            SendDate = senddate;
+            GroupID = groupid;
+        }
+
+        public string SID { get; set; }
+
+        public string FileName { get; set; }
+
+        public long FileLength { get; set; }
+        public string SenderID { get; set; }
+        public string SenderName { get; set; }
+        public string SendDate { get; set; }
+        public string GroupID { get; set; }
+    }
+
+
+
     public class ChangePasswordContract
     {
         public ChangePasswordContract() { }
@@ -74,7 +102,7 @@ namespace GGTalk
     public class ContactsRTDataContract : ContactRTDatas
     {
         public ContactsRTDataContract() { }
-        public ContactsRTDataContract(Dictionary<string, UserRTData> dic ,Dictionary<string, int> gVersion)
+        public ContactsRTDataContract(Dictionary<string, UserRTData> dic, Dictionary<string, int> gVersion)
         {
             this.UserStatusDictionary = dic;
             this.GroupVersionDictionary = gVersion;
@@ -117,7 +145,7 @@ namespace GGTalk
             this.NewCatalog = newCatalog;
         }
 
-        public string FriendID{ get; set; }
+        public string FriendID { get; set; }
         public string OldCatalog { get; set; }
         public string NewCatalog { get; set; }
     }
@@ -131,17 +159,17 @@ namespace GGTalk
         {
         }
 
-        public SystemNotifyContract(string title, string content, string senderID ,string groupID)
+        public SystemNotifyContract(string title, string content, string senderID, string groupID)
         {
             this.Title = title;
             this.Content = content;
             this.SenderID = senderID;
             this.GroupID = groupID;
         }
-        
+
         public string Title { get; set; }
         public string Content { get; set; }
         public string SenderID { get; set; }
-        public string GroupID { get; set; }        
+        public string GroupID { get; set; }
     }
 }

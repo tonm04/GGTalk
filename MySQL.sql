@@ -33,6 +33,24 @@ CREATE TABLE `ChatMessageRecord` (
 ) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
+-- Table structure for GroupFile
+-- ----------------------------
+DROP TABLE IF EXISTS `GroupFile`;
+CREATE TABLE `GroupFile` (
+  `SID` varchar(50) NOT NULL,
+  `FileName` varchar(4000) NOT NULL,
+  `FileLength` bigint(255) NOT NULL,
+  `SenderID` varchar(50) NOT NULL,
+  `SenderName` varchar(50) NULL,
+  `SendDate` varchar(50) NULL,
+  `GroupID` varchar(50) NOT NULL,
+  `RelayFilePath` varchar(4000)  NULL,
+   
+  PRIMARY KEY (`SID`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+-- ----------------------------
 -- Table structure for GGGroup
 -- ----------------------------
 DROP TABLE IF EXISTS `GGGroup`;
@@ -48,6 +66,10 @@ CREATE TABLE `GGGroup` (
   `Announce` varchar(200) NOT NULL,
   PRIMARY KEY (`GroupID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
+
 
 -- ----------------------------
 -- Table structure for GGUser

@@ -177,8 +177,11 @@ namespace JustLib.Records
         RecentMonth,
         Recent3Month,
         All
-    } 
+    }
     #endregion
+
+    
+
 
     #region IChatRecordPersister
     public interface IChatRecordPersister
@@ -224,8 +227,17 @@ namespace JustLib.Records
 
 
 
-    } 
+    }
     #endregion
+
+
+   
+
+
+
+
+
+
 
     #region DefaultChatMessageRecordPersister
     /// <summary>

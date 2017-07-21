@@ -68,6 +68,40 @@ namespace GGTalk.Server
                 }
                 return;
             }
+
+
+            if (informationType == InformationTypes.UpdateGroupInfo)
+            {
+                GGGroup group = ESPlus.Serialization.CompactPropertySerializer.Default.Deserialize<GGGroup>(info, 0);
+                GGGroup old = this.globalCache.GetGroup(group.ID);
+                this.globalCache.UpdateGroup(group);
+
+
+
+
+                List<string> Members = old.MemberList;
+
+
+
+                byte[] subData = ESPlus.Serialization.CompactPropertySerializer.Default.Serialize<GGGroup>(group); //0922   
+                foreach (string MemberID in Members)
+                {
+                    if (MemberID != sourceUserID)
+                    {
+                        //可能要分块发送
+                        this.rapidServerEngine.CustomizeController.Send(MemberID, InformationTypes.UpdateGroupInfo, subData, true, ActionTypeOnChannelIsBusy.Continue);
+                    }
+
+
+
+
+
+                }
+                return;
+            }
+
+
+
         }
 
         void ContactsController_BroadcastReceived(string broadcasterID, string groupID, int broadcastType, byte[] broadcastContent, string tag)
@@ -261,7 +295,7 @@ namespace GGTalk.Server
                 string content = System.Text.Encoding.UTF8.GetString(info).Split('|')[2];
                 this.globalCache.StoreGroupNoticeRecord(groupID, UserID, System.Text.Encoding.UTF8.GetBytes(content));
 
-             //   this.globalCache.StoreGroupChatRecord(groupID, broadcasterID, broadcastContent);
+                //   this.globalCache.StoreGroupChatRecord(groupID, broadcasterID, broadcastContent);
 
                 this.rapidServerEngine.ContactsController.Broadcast(groupID, BroadcastTypes.BroadcastNotice, System.Text.Encoding.UTF8.GetBytes(UserID + "|" + content), null, ESFramework.ActionTypeOnChannelIsBusy.Continue);
 
@@ -494,6 +528,23 @@ namespace GGTalk.Server
                 return BitConverter.GetBytes((int)res);
             }
 
+
+            //上传群文件
+            if (informationType == InformationTypes.SendGroupFile)
+            {
+                SendGroupFileContract contract = CompactPropertySerializer.Default.Deserialize<SendGroupFileContract>(info, 0);
+                SendGroupFileResult res = this.globalCache.SendGroupFile(contract.SID, contract.FileName, contract.FileLength, contract.SenderID, contract.SenderName, contract.SendDate, contract.GroupID);
+                return BitConverter.GetBytes((int)res);
+            }
+
+            //删除群文件
+            if (informationType == InformationTypes.DeleteGroupFile)
+            {
+                string fileID = System.Text.Encoding.UTF8.GetString(info).Split('|')[0];
+                string groupID = System.Text.Encoding.UTF8.GetString(info).Split('|')[1];
+                DeleteGroupFileResult res = this.globalCache.DeleteGroupFile(fileID, groupID);
+                return BitConverter.GetBytes((int)res);
+            }
             if (informationType == InformationTypes.GetGroup)
             {
                 string groupID = System.Text.Encoding.UTF8.GetString(info);

@@ -673,13 +673,13 @@ namespace GGTalk
 
             {
                 btn_adduser.Visible = true;
-               // btn_notice.Visible = true;
+                // btn_notice.Visible = true;
 
             }
             else
             {
                 btn_adduser.Visible = false;
-              //  btn_notice.Visible = false;
+                //  btn_notice.Visible = false;
 
             }
 
@@ -801,6 +801,8 @@ namespace GGTalk
 
         private void btn_adduser_Click(object sender, EventArgs e)
         {
+
+
             if (this.globalUserCache.CurrentUser.UserStatus == UserStatus.OffLine)
             {
                 return;
@@ -812,23 +814,86 @@ namespace GGTalk
         private void btn_notice_Click(object sender, EventArgs e)
         {
 
-            //AddNoticeForm form = new AddNoticeForm(this.rapidPassiveEngine, this.currentGroup);
-            //form.ShowDialog();
-
-
-
-            //NoticeRecordForm form = new NoticeRecordForm(this.rapidPassiveEngine, this.currentGroup);
-
-            //form.ShowDialog();
-
-            
-
 
             NoticeRecordForm form = new NoticeRecordForm(GlobalResourceManager.RemotingService, GlobalResourceManager.ChatMessageRecordPersister, this.currentGroup.GetIDName(), this.mine.GetIDName(), this.globalUserCache, this.rapidPassiveEngine, this.currentGroup);
             form.Show();
 
 
 
+
+        }
+
+        private void panelFriendHeadImage_Click(object sender, EventArgs e)
+        {
+
+            if ((currentGroup.CreatorID == this.mine.ID || currentGroup.ManagerList.Contains(this.mine.ID)))
+            {
+                if (this.globalUserCache.CurrentUser.UserStatus == UserStatus.OffLine)
+                {
+                    return;
+                }
+
+                this.UpdateGroupInfo();
+            }
+        }
+
+        void form_GroupInfoChanged(GGGroup group)
+        {
+            //this.labelSignature.Text = this.globalUserCache.CurrentUser.Signature;
+            //this.skinButton_headImage.Image = GlobalResourceManager.GetHeadImage(this.globalUserCache.CurrentUser);
+            //this.labelName.Text = this.globalUserCache.CurrentUser.Name;
+            //this.globalUserCache.AddOrUpdateUser(this.globalUserCache.CurrentUser);
+
+            //foreach (ChatForm chatForm in this.chatFormManager.GetAllForms())
+            //{
+            //    chatForm.OnMyInfoChanged(this.globalUserCache.CurrentUser);
+            //}
+
+
+            this.Text = string.Format("{0}({1})", this.currentGroup.Name, this.currentGroup.GroupID);
+            this.labelGroupName.Text = this.currentGroup.Name;
+            this.label_announce.Text = this.currentGroup.Announce;
+            return;
+        }
+
+
+
+        private void UpdateGroupInfo()
+        {
+            UpdateGroupInfoForm form = new UpdateGroupInfoForm(this.rapidPassiveEngine, this.globalUserCache, currentGroup);
+            form.GroupInfoChanged += new CbGeneric<GGGroup>(form_GroupInfoChanged);
+            form.TopMost = true;
+            form.Show();
+            form.TopMost = false;
+
+
+            //}
+
+
+
+        }
+
+        private void panelFriendHeadImage_MouseEnter(object sender, EventArgs e)
+        {
+            if ((currentGroup.CreatorID == this.mine.ID || currentGroup.ManagerList.Contains(this.mine.ID)))
+            {
+                this.Cursor = Cursors.Hand;
+            }
+        }
+
+        private void panelFriendHeadImage_MouseLeave(object sender, EventArgs e)
+        {
+            this.Cursor = Cursors.Default;
+        }
+
+        private void btn_file_Click(object sender, EventArgs e)
+        {
+            //  GroupFileForm form = new GroupFileForm(GlobalResourceManager.RemotingService, GlobalResourceManager.ChatMessageRecordPersister, this.currentGroup.GetIDName(), this.mine.GetIDName(), this.globalUserCache, this.rapidPassiveEngine, this.currentGroup);
+
+
+
+            GroupFileForm form = new GroupFileForm(GlobalResourceManager.RemotingService, this.currentGroup.GetIDName(), this.mine.GetIDName(), this.globalUserCache, this.rapidPassiveEngine, this.currentGroup);
+            form.Show();
 
         }
     }

@@ -9,11 +9,11 @@ using JustLib.Records;
 
 namespace GGTalk.Server
 {
-    internal class RemotingService :MarshalByRefObject, IRemotingService
+    internal class RemotingService : MarshalByRefObject, IRemotingService
     {
         private GlobalCache globalCache;
         private IRapidServerEngine rapidServerEngine;
-        public RemotingService(GlobalCache db ,IRapidServerEngine engine)
+        public RemotingService(GlobalCache db, IRapidServerEngine engine)
         {
             this.globalCache = db;
             this.rapidServerEngine = engine;
@@ -59,12 +59,12 @@ namespace GGTalk.Server
 
         public ChatRecordPage GetChatRecordPage(ChatRecordTimeScope timeScope, string senderID, string accepterID, int pageSize, int pageIndex)
         {
-            return this.globalCache.GetChatRecordPage(timeScope ,senderID, accepterID, pageSize, pageIndex);
+            return this.globalCache.GetChatRecordPage(timeScope, senderID, accepterID, pageSize, pageIndex);
         }
 
         public ChatRecordPage GetGroupChatRecordPage(ChatRecordTimeScope timeScope, string groupID, int pageSize, int pageIndex)
         {
-            ChatRecordPage page = this.globalCache.GetGroupChatRecordPage(timeScope ,groupID, pageSize, pageIndex);
+            ChatRecordPage page = this.globalCache.GetGroupChatRecordPage(timeScope, groupID, pageSize, pageIndex);
             return page;
         }
 
@@ -78,9 +78,20 @@ namespace GGTalk.Server
 
 
 
+        
+
+
+
         public void InsertChatMessageRecord(ChatMessageRecord record)
         {
             //目前没有通过remoting插入数据库
         }
+        public List<GroupFile> GetAllGroupFile(string groupID)
+        {
+
+            return this.globalCache.GetAllGroupFile(groupID);
+
+        }
+
     }
 }

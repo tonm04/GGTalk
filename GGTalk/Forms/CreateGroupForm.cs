@@ -57,6 +57,7 @@ namespace GGTalk
             {
                 CreateGroupContract contract = new CreateGroupContract(groupID, this.skinTextBox_name.SkinTxt.Text.Trim() ,this.skinTextBox_announce.SkinTxt.Text);
                 byte[] bRes = this.rapidPassiveEngine.CustomizeOutter.Query(InformationTypes.CreateGroup, CompactPropertySerializer.Default.Serialize(contract));
+
                 CreateGroupResult res = (CreateGroupResult)BitConverter.ToInt32(bRes, 0);
                 if (res == CreateGroupResult.GroupExisted)
                 {

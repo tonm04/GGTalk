@@ -150,6 +150,7 @@
     <Compile Include="NetworkDisk\Server\INDiskPathManager.cs" />
     <Compile Include="NetworkDisk\Server\NDiskHandler.cs" />
     <Compile Include="NetworkDisk\Server\NetworkDisk.cs" />
+    <Compile Include="Records\IGroupFilePersister.cs" />
     <Compile Include="Records\IChatRecordPersister.cs" />
     <Compile Include="Controls\MultiAudioChat\MultiAudioChatContainer.cs">
       <SubType>UserControl</SubType>

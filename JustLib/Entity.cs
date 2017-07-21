@@ -47,6 +47,8 @@ namespace JustLib
     public interface IGroup : IUnit
     {
         string CreatorID { get; }
+        string Name { get; set; }
+        string Announce { get; set; }
 
         List<string> MemberList { get; }
 
@@ -62,6 +64,56 @@ namespace JustLib
 
     }
     #endregion
+
+
+
+    #region IGroupFile
+    public interface IGroupFile  
+    {
+        // <summary>
+        /// 条目的唯一编号，数据库自增序列，主键。
+        /// </summary>
+          string SID { get; set; }
+
+        /// <summary>
+        /// 离线文件的名称。
+        /// </summary>
+          string FileName { get; set; }
+
+        /// <summary>
+        /// 文件的大小。
+        /// </summary>
+          long FileLength { get; set; }
+
+        /// <summary>
+        /// 发送者ID。
+        /// </summary>
+          string SenderID { get; set; }
+
+        /// <summary>
+        /// 发送日期。
+        /// </summary>
+          string SendDate { get; set; }
+
+        /// <summary>
+        /// 群组ID。
+        /// </summary>
+          string GroupID { get; set; }
+
+        /// <summary>
+        /// 在服务器上存储离线文件的临时路径。
+        /// </summary>
+          string RelayFilePath { get; set; }
+
+
+
+    }
+    #endregion
+
+
+
+
+
 
     public interface IHeadImageGetter
     {

@@ -62,6 +62,19 @@ namespace GGTalk.Server
             }
         }
 
+        public void InsertGroupFile(GroupFile t)
+        {
+            using (TransactionScope scope = this.transactionScopeFactory.NewTransactionScope())
+            {
+                IOrmAccesser<GroupFile> accesser = scope.NewOrmAccesser<GroupFile>();
+                accesser.Insert(t);
+                scope.Commit();
+            }
+        }
+
+
+
+
         public void DeleteGroup(string groupID)
         {
             using (TransactionScope scope = this.transactionScopeFactory.NewTransactionScope())
@@ -71,6 +84,18 @@ namespace GGTalk.Server
                 scope.Commit();
             }
         }
+
+        public void DeleteGroupFile(string SID)
+        {
+            using (TransactionScope scope = this.transactionScopeFactory.NewTransactionScope())
+            {
+                IOrmAccesser<GroupFile> accesser = scope.NewOrmAccesser<GroupFile>();
+                accesser.Delete(SID);
+                scope.Commit();
+            }
+        }
+
+
 
         public void UpdateUser(GGUser t)
         {
